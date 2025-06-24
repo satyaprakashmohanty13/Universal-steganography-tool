@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Universal Steganography Tool</title>
+  <!-- Tailwind CSS CDN for modern styling -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Custom styles and overrides for Tailwind */
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: 'Inter', sans-serif; /* Using Inter font */
+      overflow: hidden; /* Prevent body scroll, handle content scroll within sections */
+    }
+
+    /* Define custom gradients and animations if needed, though Tailwind handles most */
+    .gradient-bg {
+      background: linear-gradient(to right bottom, #4f46e5, #ec4899); /* Deep purple to pink gradient */
+    }
+
+    .card-gradient {
+      background: linear-gradient(to bottom right, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+    }
+
+    /* Ensure iframes take full height within their parent */
+    .tool-section iframe {
+      width: 100%;
+      height: 100%; /* Take full height of the parent flex item */
+      border: none;
+      border-radius: 1rem; /* Rounded corners for iframes */
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+    }
+
+    /* Hide sections by default, display only active one */
+    .tool-section:not(.active) {
+      display: none;
+    }
+  </style>
+</head>
+<body class="bg-gray-900 text-white flex flex-col min-h-screen">
+
+  <!-- Landing Page -->
+  <div id="landing" class="gradient-bg relative flex flex-col justify-center items-center h-screen w-full transition-all duration-700 ease-in-out transform scale-100 opacity-100">
+
+    <!-- Header for About Us/Contact Us -->
+    <div class="absolute top-0 left-0 w-full p-4 flex justify-start z-10">
+      <a href="aboutus.html" class="
+        mr-4 px-6 py-2 text-md font-semibold rounded-full
+        bg-white bg-opacity-20 text-white
+        hover:bg-opacity-30 transition-all duration-200 ease-in-out
+        focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50
+      ">
+        About Us
+      </a>
+      <a href="contactus.html" class="
+        px-6 py-2 text-md font-semibold rounded-full
+        bg-white bg-opacity-20 text-white
+        hover:bg-opacity-30 transition-all duration-200 ease-in-out
+        focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50
+      ">
+        Contact Us
+      </a>
+    </div>
+
+    <h1 class="text-5xl md:text-6xl font-extrabold text-center mb-8 drop-shadow-lg animate-fade-in">
+      Universal Steganography Tool
+    </h1>
+    <p class="text-xl md:text-2xl text-center mb-12 max-w-2xl px-4 animate-fade-in-delay">
+      <b>✨ Secrets Whispered in Silence </b>
+Where words vanish into pixels, echoes, and frames — a portal to conceal your truths in the fabric of media itself. No one will know… but you.
+    </p>
+    <button id="getStarted" class="
+      px-10 py-4 text-xl font-bold rounded-full shadow-lg
+      bg-gradient-to-r from-purple-600 to-pink-500
+      hover:from-purple-700 hover:to-pink-600
+      transform hover:scale-105 transition-all duration-300 ease-in-out
+      focus:outline-none focus:ring-4 focus:ring-purple-400 focus:ring-opacity-75
+      animate-bounce-once
+    ">
+      Get Started
+    </button>
+  </div>
+
+  <!-- Main App with Tabs -->
+  <div id="app" class="hidden flex-grow flex flex-col bg-gray-900 p-4 md:p-8 transition-opacity duration-700 ease-in-out opacity-0">
+    <!-- Tabs Navigation -->
+    <div class="
+      flex flex-wrap justify-center gap-3 mb-6 p-2 rounded-xl
+      bg-gray-800 shadow-xl
+      sm:justify-start
+    ">
+      <button class="tab-button active
+        flex-1 sm:flex-none px-6 py-3 rounded-lg text-lg font-semibold
+        bg-purple-700 text-white shadow-md
+        hover:bg-purple-600 transition-all duration-200 ease-in-out
+        focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-75
+      " onclick="showTool('text', event)">Text</button>
+      <button class="tab-button
+        flex-1 sm:flex-none px-6 py-3 rounded-lg text-lg font-semibold
+        bg-gray-700 text-gray-300 shadow-md
+        hover:bg-gray-600 transition-all duration-200 ease-in-out
+        focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-75
+      " onclick="showTool('image', event)">Image</button>
+      <button class="tab-button
+        flex-1 sm:flex-none px-6 py-3 rounded-lg text-lg font-semibold
+        bg-gray-700 text-gray-300 shadow-md
+        hover:bg-gray-600 transition-all duration-200 ease-in-out
+        focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-75
+      " onclick="showTool('audio', event)">Audio</button>
+      <button class="tab-button
+        flex-1 sm:flex-none px-6 py-3 rounded-lg text-lg font-semibold
+        bg-gray-700 text-gray-300 shadow-md
+        hover:bg-gray-600 transition-all duration-200 ease-in-out
+        focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-75
+      " onclick="showTool('video', event)">Video</button>
+    </div>
+
+    <!-- Tool Sections (iframes) -->
+    <div id="text" class="tool-section active flex-grow p-2 md:p-4 rounded-xl card-gradient shadow-2xl flex items-center justify-center">
+      <iframe src="text.html" title="Text Steganography Tool"></iframe>
+    </div>
+    <div id="image" class="tool-section flex-grow p-2 md:p-4 rounded-xl card-gradient shadow-2xl flex items-center justify-center">
+      <iframe src="image.html" title="Image Steganography Tool"></iframe>
+    </div>
+    <div id="audio" class="tool-section flex-grow p-2 md:p-4 rounded-xl card-gradient shadow-2xl flex items-center justify-center">
+      <iframe src="audio.html" title="Audio Steganography Tool"></iframe>
+    </div>
+    <div id="video" class="tool-section flex-grow p-2 md:p-4 rounded-xl card-gradient shadow-2xl flex items-center justify-center">
+      <iframe src="video.html" title="Video Steganography Tool"></iframe>
+    </div>
+  </div>
+
+  <script>
+    // Tailwind CSS @keyframes for animations
+    const style = document.createElement('style');
+    style.innerHTML = `
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      .animate-fade-in {
+        animation: fadeIn 0.8s ease-out forwards;
+      }
+      .animate-fade-in-delay {
+        animation: fadeIn 0.8s ease-out 0.3s forwards;
+        opacity: 0; /* ensure it's hidden before animation starts */
+      }
+      @keyframes bounceOnce {
+        0%, 100% { transform: translateY(0); }
+        20% { transform: translateY(-5px); }
+        40% { transform: translateY(0); }
+        60% { transform: translateY(-2px); }
+        80% { transform: translateY(0); }
+      }
+      .animate-bounce-once {
+        animation: bounceOnce 1s ease-in-out;
+      }
+    `;
+    document.head.appendChild(style);
+
+
+    // Start App
+    document.getElementById("getStarted").onclick = () => {
+      const landingPage = document.getElementById("landing");
+      const mainApp = document.getElementById("app");
+
+      // Animate out the landing page
+      landingPage.classList.remove("scale-100", "opacity-100");
+      landingPage.classList.add("scale-90", "opacity-0");
+
+      // After animation, hide landing and show app
+      setTimeout(() => {
+        landingPage.style.display = "none";
+        mainApp.classList.remove("hidden", "opacity-0");
+        mainApp.classList.add("opacity-100"); // Animate in the app
+      }, 700); // Match this duration with transition-all duration-700
+    };
+
+    // Tab Switcher
+    function showTool(id, event) {
+      // Remove 'active' from all tool sections and tab buttons
+      document.querySelectorAll('.tool-section').forEach(div => div.classList.remove('active'));
+      document.querySelectorAll('.tab-button').forEach(btn => {
+        btn.classList.remove('bg-purple-700', 'text-white');
+        btn.classList.add('bg-gray-700', 'text-gray-300');
+      });
+
+      // Add 'active' to the selected tool section and tab button
+      document.getElementById(id).classList.add('active');
+      if (event && event.target) {
+        event.target.classList.add('bg-purple-700', 'text-white');
+        event.target.classList.remove('bg-gray-700', 'text-gray-300');
+      }
+    }
+
+    // Initialize the app display state on load if it's already active (for direct access/debugging)
+    document.addEventListener('DOMContentLoaded', () => {
+        // You might want to remove this if you only ever want the landing page first
+        // For now, it ensures the app shows up correctly if the HTML is loaded directly in its 'app' state
+        const landingPage = document.getElementById("landing");
+        const mainApp = document.getElementById("app");
+
+        // If the URL has a hash for a tool, or for development, you can toggle initial view
+        // For this example, we always start with the landing page unless explicitly toggled by JS.
+    });
+
+  </script>
+</body>
+</html>
+
