@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact Us</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Custom font for a premium feel */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-purple-500 to-pink-500">
+
+  <div class="container bg-white bg-opacity-20 backdrop-filter backdrop-blur-lg p-8 md:p-12 rounded-2xl shadow-xl max-w-lg w-full transform transition-all duration-300 hover:scale-105 border border-white border-opacity-30">
+    <h2 class="text-4xl font-bold text-center mb-8 text-white drop-shadow-lg">Contact Us</h2>
+    <form onsubmit="return submitForm();">
+      <div class="mb-6">
+        <label for="name" class="block text-white text-lg font-semibold mb-2 drop-shadow-md">Name *</label>
+        <input type="text" id="name" required
+               class="w-full px-5 py-3 bg-white bg-opacity-30 border border-white border-opacity-40 rounded-xl focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent text-white placeholder-white::placeholder text-lg transition duration-200 ease-in-out focus:bg-opacity-40">
+      </div>
+
+      <div class="mb-6">
+        <label for="address" class="block text-white text-lg font-semibold mb-2 drop-shadow-md">Address *</label>
+        <input type="text" id="address" required
+               class="w-full px-5 py-3 bg-white bg-opacity-30 border border-white border-opacity-40 rounded-xl focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent text-white placeholder-white::placeholder text-lg transition duration-200 ease-in-out focus:bg-opacity-40">
+      </div>
+
+      <div class="mb-6">
+        <label for="phone" class="block text-white text-lg font-semibold mb-2 drop-shadow-md">Phone No. (with country code)</label>
+        <input type="tel" id="phone" placeholder="+91-XXXXXXXXXX"
+               class="w-full px-5 py-3 bg-white bg-opacity-30 border border-white border-opacity-40 rounded-xl focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent text-white placeholder-white::placeholder text-lg transition duration-200 ease-in-out focus:bg-opacity-40">
+      </div>
+
+      <div class="mb-8">
+        <label for="message" class="block text-white text-lg font-semibold mb-2 drop-shadow-md">Message</label>
+        <textarea id="message" rows="5"
+                  class="w-full px-5 py-3 bg-white bg-opacity-30 border border-white border-opacity-40 rounded-xl focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent text-white placeholder-white::placeholder text-lg transition duration-200 ease-in-out focus:bg-opacity-40 resize-y"></textarea>
+      </div>
+
+      <button type="submit"
+              class="w-full bg-white bg-opacity-30 hover:bg-opacity-40 text-white font-bold py-4 rounded-full text-xl shadow-lg transition duration-300 ease-in-out transform hover:-translate-y-1 hover:shadow-2xl focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-75 focus:ring-offset-2 focus:ring-offset-pink-500 border border-white border-opacity-50">
+        Submit
+      </button>
+    </form>
+  </div>
+
+<script>
+  function submitForm() {
+    const name = document.getElementById("name").value.trim();
+    const address = document.getElementById("address").value.trim();
+    const phone = document.getElementById("phone").value.trim();
+    const message = document.getElementById("message").value.trim();
+
+    if (!name || !address) {
+      // Replaced alert with a simple message box (for demonstration, a full modal would be better)
+      const container = document.querySelector('.container');
+      const messageBox = document.createElement('div');
+      messageBox.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+      messageBox.innerHTML = `
+        <div class="bg-white p-8 rounded-lg shadow-xl text-center">
+          <p class="text-lg font-semibold mb-4">Please fill in all required fields (Name and Address).</p>
+          <button onclick="this.parentNode.parentNode.remove()" class="bg-purple-600 text-white px-6 py-2 rounded-full hover:bg-purple-700 transition duration-200">OK</button>
+        </div>
+      `;
+      document.body.appendChild(messageBox);
+      return false;
+    }
+
+    const subject = encodeURIComponent("Contact Form Submission from " + name);
+    let body = `Name: ${name}\nAddress: ${address}`;
+    if (phone) {
+      body += `\nPhone: ${phone}`;
+    }
+    if (message) {
+      body += `\nMessage: ${message}`;
+    }
+
+    // Change the email address to your own receiving email
+    window.location.href = `mailto:mohanty.subash1984@gmail.com?subject=${subject}&body=${encodeURIComponent(body)}`;
+    return false; // Prevent actual form submission
+  }
+</script>
+
+</body>
+</html>
+
