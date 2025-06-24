@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Audio Steganography (WAV) with Password Encryption</title>
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          sans: ['Inter', 'sans-serif'], // Set Inter as the default font
+        },
+      }
+    }
+  }
+</script>
+<style>
+  /* Custom styles for the scrollbar to make it look nicer */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #f0f4f8; /* Light background for the track */
+    border-radius: 10px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #818cf8; /* A shade of indigo for the thumb */
+    border-radius: 10px;
+    border: 2px solid #f0f4f8; /* Border to make it thinner */
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #6366f1; /* Darker indigo on hover */
+  }
+
+  /* Base body styles, overridden by Tailwind where applicable */
+  body {
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh; /* Ensure body takes full viewport height */
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 0; /* Add padding top/bottom */
+  }
+  h2, h3 {
+    color: #1f2937; /* Darker text for headings */
+  }
+  /* General input and textarea styling */
+  input[type="file"],
+  input[type="password"],
+  textarea {
+    transition: all 0.2s ease-in-out;
+  }
+  input[type="file"]:focus,
+  input[type="password"]:focus,
+  textarea:focus {
+    border-color: #6366f1; /* Indigo focus border */
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25); /* Light indigo glow */
+    outline: none;
+  }
+
+  /* Specific styles for the MP3 to WAV converter to align with the new theme */
+  #mp3-wav-converter-container .mp3-wav-converter-file-input-button {
+      background-color: #4f46e5; /* Primary button color */
+  }
+  #mp3-wav-converter-container .mp3-wav-converter-file-input-button:hover {
+      background-color: #4338ca;
+  }
+  #mp3-wav-converter-container .mp3-wav-converter-button {
+      background-color: #4f46e5; /* Primary button color */
+  }
+  #mp3-wav-converter-container .mp3-wav-converter-button:hover:not(:disabled) {
+      background-color: #4338ca;
+  }
+  #mp3-wav-converter-container .mp3-wav-converter-button:disabled {
+      background-color: #9ca3af;
+  }
+  #mp3-wav-converter-container .mp3-wav-converter-button.mp3-wav-converter-hidden {
+      display: none;
+  }
+  #mp3-wav-converter-container .mp3-wav-converter-button[download] {
+      background-color: #10b981; /* Success green for download button */
+  }
+  #mp3-wav-converter-container .mp3-wav-converter-button[download]:hover {
+      background-color: #059669;
+  }
+</style>
+</head>
+<body class="bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 font-sans text-gray-800">
+
+  <h2 class="text-3xl md:text-4xl font-extrabold text-center mt-8 mb-6 text-indigo-800 shadow-sm p-2 rounded-lg bg-white bg-opacity-70">
+    🎧 Audio Steganography Tool (WAV, PCM 16-bit)
+  </h2>
+  <p class="text-lg text-gray-700 text-center max-w-2xl mb-10 px-4">
+    This tool allows you to securely embed an encrypted text message into a WAV audio file or extract one using a password.
+    It supports PCM 16-bit WAV files.
+  </p>
+
+  <div class="section bg-white bg-opacity-90 p-6 md:p-8 rounded-2xl shadow-xl w-11/12 md:w-3/4 lg:w-2/3 max-w-4xl mb-10 border border-indigo-200">
+    <h3 class="text-2xl font-bold mb-4 text-indigo-700 flex items-center">
+      ✨ Encoder
+    </h3>
+    <label for="inputWav" class="block text-gray-700 text-sm font-semibold mb-1">
+      Select a WAV file (PCM 16-bit):
+    </label>
+    <p class="text-red-600 text-sm mb-3">
+      ⚠️ Don't have a .wav file? Scroll down to convert your .mp3 file to .wav.
+    </p>
+    <input type="file" id="inputWav" accept=".wav,audio/wav" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
+    <div id="capacityInfo" class="info text-sm text-gray-600 mt-2"></div>
+
+    <label for="messageText" class="block text-gray-700 text-sm font-semibold mt-4 mb-1">
+      Message to embed:
+    </label>
+    <textarea id="messageText" placeholder="Enter text message..." class="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 resize-y h-28"></textarea>
+
+    <label for="encPassword" class="block text-gray-700 text-sm font-semibold mt-4 mb-1">
+      Password:
+    </label>
+    <input type="password" id="encPassword" placeholder="Password for encryption" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
+
+    <button id="encodeBtn" disabled class="w-full py-3 mt-6 rounded-xl font-bold text-white text-lg
+      bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700
+      shadow-lg transform transition-all duration-200 ease-in-out hover:scale-105 hover:shadow-xl
+      disabled:opacity-50 disabled:cursor-not-allowed disabled:from-gray-400 disabled:to-gray-500 flex items-center justify-center">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6 mr-2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+      </svg>
+      Embed Message & Download
+    </button>
+    <div id="encodeStatus" class="info text-sm text-gray-700 mt-3 text-center"></div>
+    <a id="downloadLink" href="#" download="stego.wav" class="inline-block py-2 px-4 mt-4 text-white text-center rounded-xl font-bold
+      bg-gradient-to-r from-green-500 to-teal-600 hover:from-green-600 hover:to-teal-700
+      shadow-md transform transition-all duration-200 ease-in-out hover:scale-105 hover:shadow-lg
+      no-underline mx-auto block w-fit" style="display:none;">
+      ⬇️ Download Stego WAV
+    </a>
+  </div>
+
+  <div class="section bg-white bg-opacity-90 p-6 md:p-8 rounded-2xl shadow-xl w-11/12 md:w-3/4 lg:w-2/3 max-w-4xl mb-10 border border-indigo-200">
+    <h3 class="text-2xl font-bold mb-4 text-indigo-700 flex items-center">
+      🔑 Decoder
+    </h3>
+    <label for="stegoWav" class="block text-gray-700 text-sm font-semibold mb-1">
+      Select a stego WAV file:
+    </label>
+    <p class="text-red-600 text-sm mb-3">
+      ⚠️ The file must be encoded using this platform.
+    </p>
+    <input type="file" id="stegoWav" accept=".wav,audio/wav" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
+    <label for="decPassword" class="block text-gray-700 text-sm font-semibold mt-4 mb-1">
+      Password:
+    </label>
+    <input type="password" id="decPassword" placeholder="Password for decryption" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
+    <button id="decodeBtn" disabled class="w-full py-3 mt-6 rounded-xl font-bold text-white text-lg
+      bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700
+      shadow-lg transform transition-all duration-200 ease-in-out hover:scale-105 hover:shadow-xl
+      disabled:opacity-50 disabled:cursor-not-allowed disabled:from-gray-400 disabled:to-gray-500 flex items-center justify-center">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6 mr-2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5V6.75a4.5 4.5 0 119 0v3.75M3.75 21.75h10.5a2.25 2.25 0 002.25-2.25v-10.5a2.25 2.25 0 00-2.25-2.25H3.75A2.25 2.25 0 001.5 9v10.5a2.25 2.25 0 002.25 2.25z" />
+      </svg>
+      Extract Message
+    </button>
+    <div id="decodeStatus" class="info text-sm text-gray-700 mt-3 text-center"></div>
+    <div id="messageOutput" class="message-output mt-4 bg-gray-100 p-4 rounded-lg border border-gray-300 text-gray-800 break-words text-left min-h-[6rem] flex items-center justify-center">
+      <p class="text-gray-500">Extracted message will appear here...</p>
+    </div>
+  </div>
+
+<script>
+(async () => {
+  // Utility: parse WAV header, find data chunk offset & size, verify PCM16
+  function parseWav(buffer) {
+    const view = new DataView(buffer);
+    // Check "RIFF" and "WAVE"
+    if (view.getUint32(0, false) !== 0x52494646 /* "RIFF" */ ||
+        view.getUint32(8, false) !== 0x57415645 /* "WAVE" */) {
+      throw new Error("Not a valid WAV file.");
+    }
+    let offset = 12;
+    let fmtFound = false;
+    let audioFormat = null, bitsPerSample = null;
+    let dataOffset = null, dataSize = null;
+    while (offset < view.byteLength) {
+      const chunkId = view.getUint32(offset, false);
+      const chunkSize = view.getUint32(offset + 4, true);
+      // "fmt " chunk
+      if (chunkId === 0x666d7420 /* "fmt " */) {
+        fmtFound = true;
+        audioFormat = view.getUint16(offset + 8, true);
+        const numChannels = view.getUint16(offset + 10, true);
+        // sampleRate etc not strictly needed here
+        bitsPerSample = view.getUint16(offset + 22, true);
+        // Only PCM (1) and 16-bit
+        if (audioFormat !== 1 || bitsPerSample !== 16) {
+          throw new Error("Only PCM format with 16 bits per sample is supported.");
+        }
+      }
+      // "data" chunk
+      else if (chunkId === 0x64617461 /* "data" */) {
+        dataOffset = offset + 8;
+        dataSize = chunkSize;
+        break;
+      }
+      // Move to next chunk (with pad byte if needed)
+      offset += 8 + chunkSize + (chunkSize % 2);
+    }
+    if (!fmtFound) {
+      throw new Error("Missing 'fmt ' chunk.");
+    }
+    if (dataOffset === null) {
+      throw new Error("Missing 'data' chunk.");
+    }
+    return { dataOffset, dataSize };
+  }
+
+  // Derive AES-GCM key from password and salt
+  async function deriveKey(password, salt) {
+    const enc = new TextEncoder();
+    const pwKey = await crypto.subtle.importKey(
+      "raw", enc.encode(password), { name: "PBKDF2" }, false, ["deriveKey"]
+    );
+    return crypto.subtle.deriveKey(
+      {
+        name: "PBKDF2",
+        salt: salt,
+        iterations: 100000,
+        hash: "SHA-256"
+      },
+      pwKey,
+      { name: "AES-GCM", length: 256 },
+      false,
+      ["encrypt", "decrypt"]
+    );
+  }
+
+  // Encode message: read WAV, encrypt message, embed bits in LSB of samples
+  async function encodeWav(file, message, password) {
+    const arrayBuffer = await file.arrayBuffer();
+    // Copy buffer so we can modify
+    const buffer = arrayBuffer.slice(0);
+    const view = new DataView(buffer);
+    const { dataOffset, dataSize } = parseWav(buffer);
+    const totalSamples = dataSize / 2; // 2 bytes per sample for 16-bit
+    // Encrypt message
+    const enc = new TextEncoder();
+    const msgBytes = enc.encode(message);
+    // Generate random salt (16 bytes) and iv (12 bytes)
+    const salt = crypto.getRandomValues(new Uint8Array(16));
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const key = await deriveKey(password, salt);
+    const cipherBuffer = await crypto.subtle.encrypt(
+      { name: "AES-GCM", iv: iv },
+      key,
+      msgBytes
+    );
+    const cipherBytes = new Uint8Array(cipherBuffer);
+    // Prepare payload: salt (16) + iv (12) + ciphertext
+    const payload = new Uint8Array(16 + 12 + cipherBytes.length);
+    payload.set(salt, 0);
+    payload.set(iv, 16);
+    payload.set(cipherBytes, 28);
+    // Prepare full data: 4-byte length (big-endian) + payload
+    const length = payload.length;
+    const fullBytes = new Uint8Array(4 + length);
+    // DataView to set Uint32 big-endian
+    const lenView = new DataView(fullBytes.buffer);
+    lenView.setUint32(0, length, false); // big-endian
+    fullBytes.set(payload, 4);
+    const totalBits = fullBytes.length * 8;
+    if (totalBits > totalSamples) {
+      throw new Error(`Insufficient capacity: need ${totalBits} samples but only ${totalSamples} available.`);
+    }
+    // Embed bits: for each bit, modify LSB of sample
+    for (let i = 0; i < totalBits; i++) {
+      const byteIndex = i >> 3;
+      const bitIndex = 7 - (i & 7); // MSB first
+      const bit = (fullBytes[byteIndex] >> bitIndex) & 1;
+      const sampleOffset = dataOffset + i * 2;
+      const sample = view.getInt16(sampleOffset, true);
+      const newSample = (sample & ~1) | bit;
+      view.setInt16(sampleOffset, newSample, true);
+    }
+    return buffer; // modified WAV buffer
+  }
+
+  // Decode: read WAV, extract bits, decrypt
+  async function decodeWav(file, password) {
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = arrayBuffer.slice(0);
+    const view = new DataView(buffer);
+    const { dataOffset, dataSize } = parseWav(buffer);
+    const totalSamples = dataSize / 2;
+    // Read first 32 bits to get payload length
+    let length = 0;
+    if (totalSamples < 32) {
+      throw new Error("Audio too short or no hidden data.");
+    }
+    for (let i = 0; i < 32; i++) {
+      const sampleOffset = dataOffset + i * 2;
+      const sample = view.getInt16(sampleOffset, true);
+      const bit = sample & 1;
+      length = (length << 1) | bit; // Build length MSB-first
+    }
+    const totalBitsNeeded = 32 + length * 8;
+    if (totalBitsNeeded > totalSamples) {
+      throw new Error("No valid hidden data or corrupted.");
+    }
+    // Extract payload bytes
+    const payload = new Uint8Array(length);
+    for (let i = 0; i < length * 8; i++) {
+      const sampleOffset = dataOffset + (32 + i) * 2;
+      const sample = view.getInt16(sampleOffset, true);
+      const bit = sample & 1;
+      const byteIndex = i >> 3;
+      const bitInByteIndex = i % 8; // Calculate bit position within the byte
+      // Set the bit at the correct position (MSB first)
+      if (bit) {
+          payload[byteIndex] |= (1 << (7 - bitInByteIndex));
+      } else {
+          payload[byteIndex] &= ~(1 << (7 - bitInByteIndex));
+      }
+    }
+    // Extract salt, iv, ciphertext
+    if (length < 28) {
+      throw new Error("Hidden data too short.");
+    }
+    const salt = payload.slice(0, 16);
+    const iv = payload.slice(16, 28);
+    const cipherBytes = payload.slice(28);
+    // Derive key and decrypt
+    const key = await deriveKey(password, salt);
+    try {
+      const plainBuffer = await crypto.subtle.decrypt(
+        { name: "AES-GCM", iv: iv },
+        key,
+        cipherBytes
+      );
+      const dec = new TextDecoder();
+      return dec.decode(plainBuffer);
+    } catch (e) {
+      throw new Error("Decryption failed: wrong password or corrupted data.");
+    }
+  }
+
+  // UI elements
+  const inputWav = document.getElementById("inputWav");
+  const capacityInfo = document.getElementById("capacityInfo");
+  const messageText = document.getElementById("messageText");
+  const encPassword = document.getElementById("encPassword");
+  const encodeBtn = document.getElementById("encodeBtn");
+  const encodeStatus = document.getElementById("encodeStatus");
+  const downloadLink = document.getElementById("downloadLink");
+
+  let loadedBufferInfo = null;
+  inputWav.addEventListener("change", async () => {
+    capacityInfo.textContent = "";
+    encodeStatus.textContent = "";
+    downloadLink.style.display = "none";
+    encodeBtn.disabled = true;
+    const file = inputWav.files[0];
+    if (!file) return;
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+      // parse header only
+      const { dataOffset, dataSize } = parseWav(arrayBuffer);
+      const totalSamples = dataSize / 2;
+      // Max payload bytes = floor(totalSamples/8) minus 4 bytes for length + 16 salt + 12 iv + 16 tag for AES-GCM (approx 48 bytes overhead)
+      const overheadBytes = 4 + 16 + 12 + 16; // Length (4) + Salt (16) + IV (12) + GCM Tag (16)
+      const maxPayloadBits = totalSamples - (overheadBytes * 8); // Remaining bits for actual message and AES-GCM overhead
+      const maxMessageCapacityBits = maxPayloadBits - (16 * 8); // Minus 16 bytes for AES-GCM authentication tag
+      const maxMessageBytes = Math.floor(maxMessageCapacityBits / 8);
+
+      if (maxMessageBytes <= 0) {
+        capacityInfo.innerHTML = '<span class="text-red-600 font-bold">Audio file too short to embed any message after encryption overhead.</span>';
+        loadedBufferInfo = null;
+      } else {
+        capacityInfo.textContent = `Capacity approx: can embed up to ~${maxMessageBytes} bytes of plaintext data. (Note: Encryption adds overhead)`;
+        loadedBufferInfo = { file, totalSamples };
+        encodeBtn.disabled = false;
+      }
+    } catch (e) {
+      capacityInfo.innerHTML = '<span class="text-red-600 font-bold">Error: ' + e.message + '</span>';
+      loadedBufferInfo = null;
+    }
+  });
+
+  encodeBtn.addEventListener("click", async () => {
+    encodeStatus.textContent = "";
+    downloadLink.style.display = "none";
+    const file = inputWav.files[0];
+    const message = messageText.value;
+    const password = encPassword.value;
+    if (!file) {
+      encodeStatus.innerHTML = '<span class="text-red-600 font-bold">Select a WAV file first.</span>';
+      return;
+    }
+    if (!message) {
+      encodeStatus.innerHTML = '<span class="text-red-600 font-bold">Enter a message to embed.</span>';
+      return;
+    }
+    if (!password) {
+      encodeStatus.innerHTML = '<span class="text-red-600 font-bold">Enter a password.</span>';
+      return;
+    }
+    encodeBtn.disabled = true;
+    encodeStatus.textContent = "Embedding message, please wait...";
+    try {
+      const modifiedBuffer = await encodeWav(file, message, password);
+      const blob = new Blob([modifiedBuffer], { type: 'audio/wav' });
+      const url = URL.createObjectURL(blob);
+      downloadLink.href = url;
+      downloadLink.style.display = "inline-block";
+      encodeStatus.textContent = "✅ Done! Click to download the stego WAV file.";
+    } catch (e) {
+      encodeStatus.innerHTML = '<span class="text-red-600 font-bold">Error: ' + e.message + '</span>';
+    } finally {
+      encodeBtn.disabled = false;
+    }
+  });
+
+  // Decoder UI
+  const stegoWav = document.getElementById("stegoWav");
+  const decPassword = document.getElementById("decPassword");
+  const decodeBtn = document.getElementById("decodeBtn");
+  const decodeStatus = document.getElementById("decodeStatus");
+  const messageOutput = document.getElementById("messageOutput");
+
+  stegoWav.addEventListener("change", () => {
+    decodeStatus.textContent = "";
+    messageOutput.innerHTML = '<p class="text-gray-500">Extracted message will appear here...</p>';
+    decodeBtn.disabled = !stegoWav.files[0];
+  });
+
+  decodeBtn.addEventListener("click", async () => {
+    decodeStatus.textContent = "";
+    messageOutput.innerHTML = '<p class="text-gray-500">Extracted message will appear here...</p>';
+    const file = stegoWav.files[0];
+    const password = decPassword.value;
+    if (!file) {
+      decodeStatus.innerHTML = '<span class="text-red-600 font-bold">Select a WAV file first.</span>';
+      return;
+    }
+    if (!password) {
+      decodeStatus.innerHTML = '<span class="text-red-600 font-bold">Enter the password.</span>';
+      return;
+    }
+    decodeBtn.disabled = true;
+    decodeStatus.textContent = "Extracting message, please wait...";
+    try {
+      const msg = await decodeWav(file, password);
+      decodeStatus.textContent = "🎉 Success! Extracted message:";
+      messageOutput.innerHTML = `<pre>${msg}</pre>`; // Use <pre> to preserve whitespace
+      messageOutput.classList.remove('justify-center'); // Adjust alignment for actual content
+    } catch (e) {
+      decodeStatus.innerHTML = '<span class="text-red-600 font-bold">Error: ' + e.message + '</span>';
+      messageOutput.classList.add('justify-center'); // Re-center placeholder
+    } finally {
+      decodeBtn.disabled = false;
+    }
+  });
+})();
+</script>
+<!-- Embeddable MP3 to WAV Converter (No External Dependencies) -->
+<div id="mp3-wav-converter-container" class="font-sans bg-white rounded-2xl shadow-xl p-8 max-w-xl w-11/12 md:w-3/4 lg:w-2/3 text-center mx-auto mb-10 border border-indigo-200">
+
+    <div class="space-y-6">
+        <!-- Header Section -->
+        <div>
+            <h1 class="text-3xl font-extrabold text-gray-800 mb-2">🎶 MP3 to WAV Converter</h1>
+            <p class="text-gray-600">Convert your .mp3 audio files to .wav format, which is required for the steganography tool.</p>
+        </div>
+
+        <!-- File Input Section -->
+        <div class="border-2 border-dashed border-gray-300 rounded-xl p-8 flex flex-col items-center justify-center bg-gray-50 hover:bg-gray-100 transition-colors duration-200 cursor-pointer">
+            <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+                <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <p id="mp3-wav-converter-file-name" class="mt-4 text-sm text-gray-600">
+                <label for="mp3-wav-converter-file-upload" class="relative cursor-pointer bg-white rounded-md font-semibold text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500 py-2 px-3">
+                    Click to select an MP3 file
+                </label>
+            </p>
+            <input id="mp3-wav-converter-file-upload" name="file-upload" type="file" accept=".mp3" class="sr-only">
+        </div>
+
+        <!-- Status & Action Section -->
+        <div class="space-y-4">
+            <!-- Status message will be displayed here -->
+            <p id="mp3-wav-converter-status-message" class="text-indigo-600 font-medium h-5"></p>
+            
+            <!-- Convert button -->
+            <button id="mp3-wav-converter-convert-button" class="w-full py-3 rounded-xl font-bold text-white text-lg
+                bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700
+                shadow-lg transform transition-all duration-200 ease-in-out hover:scale-105 hover:shadow-xl
+                disabled:opacity-50 disabled:cursor-not-allowed disabled:from-gray-400 disabled:to-gray-500 flex items-center justify-center" disabled>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6 mr-2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 7.5l.75-.75m7.125 7.125h-.375M12 12V3m0 0a2.25 2.25 0 00-2.25 2.25V12M12 12H3m0 0a2.25 2.25 0 00-2.25 2.25V12m20.25 0H12m0 0a2.25 2.25 0 012.25 2.25V12" />
+                </svg>
+                Convert to WAV
+            </button>
+            
+            <!-- Download link, initially hidden -->
+            <a id="mp3-wav-converter-download-link" class="hidden w-full py-3 rounded-xl font-bold text-white text-lg text-center
+                bg-gradient-to-r from-green-500 to-teal-600 hover:from-green-600 hover:to-teal-700
+                shadow-lg transform transition-all duration-200 ease-in-out hover:scale-105 hover:shadow-xl
+                no-underline flex items-center justify-center" download>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6 mr-2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75l3 3m0 0l3-3m-3 3v-7.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Download WAV File
+            </a>
+        </div>
+    </div>
+    <!-- The converter's JavaScript logic -->
+    <script>
+        (function() {
+            const container = document.getElementById('mp3-wav-converter-container');
+            if (!container) {
+                console.error('Embeddable Converter Error: Container element #mp3-wav-converter-container not found.');
+                return;
+            }
+
+            const fileUploadInput = container.querySelector('#mp3-wav-converter-file-upload');
+            const fileNameDisplay = container.querySelector('#mp3-wav-converter-file-name');
+            const statusMessage = container.querySelector('#mp3-wav-converter-status-message');
+            const convertButton = container.querySelector('#mp3-wav-converter-convert-button');
+            const downloadLink = container.querySelector('#mp3-wav-converter-download-link');
+            let mp3File = null;
+
+            fileUploadInput.addEventListener('change', (event) => {
+                mp3File = event.target.files[0];
+                if (mp3File) {
+                    const label = fileNameDisplay.querySelector('label');
+                    if (label) {
+                        fileNameDisplay.textContent = mp3File.name; // Display file name instead of label
+                        // Re-insert label functionality if needed after displaying file name
+                        fileNameDisplay.innerHTML = `<label for="mp3-wav-converter-file-upload" class="relative cursor-pointer bg-white rounded-md font-semibold text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500 py-2 px-3">
+                            Change file
+                        </label> <span class="ml-2">${mp3File.name}</span>`;
+                    }
+                    convertButton.disabled = false;
+                    statusMessage.textContent = 'File ready to be converted.';
+                    downloadLink.classList.add('hidden'); // Use Tailwind hidden class
+                    downloadLink.href = '#';
+                }
+            });
+
+            convertButton.addEventListener('click', async () => {
+                if (!mp3File) {
+                    statusMessage.textContent = 'Please select a file first.';
+                    return;
+                }
+                convertButton.disabled = true;
+                downloadLink.classList.add('hidden'); // Use Tailwind hidden class
+                statusMessage.textContent = 'Converting... This may take a moment.';
+                try {
+                    const arrayBuffer = await mp3File.arrayBuffer();
+                    const audioContext = new(window.AudioContext || window.webkitAudioContext)();
+                    const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+                    const wavBlob = bufferToWav(audioBuffer);
+                    const wavUrl = URL.createObjectURL(wavBlob);
+                    downloadLink.href = wavUrl;
+                    const newFileName = mp3File.name.replace(/\.[^/.]+$/, "") + ".wav";
+                    downloadLink.download = newFileName;
+                    downloadLink.classList.remove('hidden'); // Use Tailwind hidden class
+                    statusMessage.textContent = 'Conversion successful! 🎉';
+                } catch (error) {
+                    console.error('Conversion Error:', error);
+                    statusMessage.textContent = `Error: ${error.message}. Please try again with a valid MP3.`;
+                    convertButton.disabled = false;
+                }
+            });
+
+            function bufferToWav(buffer) {
+                const numOfChan = buffer.numberOfChannels;
+                const length = buffer.length * numOfChan * 2 + 44;
+                const view = new DataView(new ArrayBuffer(length));
+                let pos = 0;
+                const writeString = (s) => {
+                    for (let i = 0; i < s.length; i++) {
+                        view.setUint8(pos++, s.charCodeAt(i));
+                    }
+                };
+                writeString('RIFF');
+                view.setUint32(pos, 36 + buffer.length * numOfChan * 2, true);
+                pos += 4;
+                writeString('WAVE');
+                writeString('fmt ');
+                view.setUint32(pos, 16, true);
+                pos += 4;
+                view.setUint16(pos, 1, true); // Audio format (1 = PCM)
+                pos += 2;
+                view.setUint16(pos, numOfChan, true);
+                pos += 2;
+                view.setUint32(pos, buffer.sampleRate, true);
+                pos += 4;
+                view.setUint32(pos, buffer.sampleRate * 2 * numOfChan, true); // Byte rate
+                pos += 4;
+                view.setUint16(pos, numOfChan * 2, true); // Block align
+                pos += 2;
+                view.setUint16(pos, 16, true); // Bits per sample
+                pos += 2;
+                writeString('data');
+                view.setUint32(pos, buffer.length * numOfChan * 2, true);
+                pos += 4;
+                const channels = [];
+                for (let i = 0; i < numOfChan; i++) {
+                    channels.push(buffer.getChannelData(i));
+                }
+                for (let i = 0; i < buffer.length; i++) {
+                    for (let j = 0; j < numOfChan; j++) {
+                        // Convert float to 16-bit PCM (signed)
+                        const sample = Math.max(-1, Math.min(1, channels[j][i]));
+                        const intSample = sample < 0 ? sample * 0x8000 : sample * 0x7FFF;
+                        view.setInt16(pos, intSample, true); // true for little-endian
+                        pos += 2;
+                    }
+                }
+                return new Blob([view], {
+                    type: 'audio/wav'
+                });
+            }
+        })();
+    </script>
+</div>
+
+</body>
+</html>
+

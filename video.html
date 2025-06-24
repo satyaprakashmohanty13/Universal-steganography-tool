@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Video Steganography Tool</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    /* Custom Scrollbar for Log */
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 8px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 10px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.5);
+    }
+    /* Fade in down animation for title */
+    @keyframes fade-in-down {
+      0% {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .animate-fade-in-down {
+      animation: fade-in-down 0.8s ease-out forwards;
+    }
+
+    /* Styles for file input buttons */
+    input[type="file"]::file-selector-button {
+      @apply mr-4 py-2 px-4 rounded-full border-0 text-sm font-semibold;
+    }
+    /* Specific styles for encode file input */
+    #inputVideoEncode::file-selector-button {
+      @apply bg-purple-500 text-white hover:bg-purple-600 cursor-pointer transition-colors duration-200;
+    }
+    /* Specific styles for decode file input */
+    #inputVideoDecode::file-selector-button {
+      @apply bg-green-500 text-white hover:bg-green-600 cursor-pointer transition-colors duration-200;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-purple-800 to-indigo-900 text-white p-4 font-sans flex flex-col items-center justify-center">
+
+  <!-- Notification Container -->
+  <div id="notification-container" class="fixed top-4 right-4 z-50"></div>
+
+  <h1 class="text-4xl md:text-5xl font-extrabold mb-8 text-center drop-shadow-lg animate-fade-in-down">
+    Video Steganography Tool
+  </h1>
+
+  <div class="w-full max-w-4xl bg-white bg-opacity-10 backdrop-blur-md rounded-2xl shadow-xl p-6 md:p-8 space-y-8 border border-white border-opacity-20 transform transition-all duration-300 hover:scale-[1.01]">
+
+    <!-- Encoding section -->
+    <section class="bg-white bg-opacity-5 rounded-xl p-6 shadow-inner flex flex-col gap-5 border border-white border-opacity-10 transform transition-all duration-300 hover:shadow-2xl">
+      <h2 class="text-2xl font-bold text-gray-100 flex items-center space-x-3">
+        <i data-lucide="monitor-play" class="text-purple-300"></i>
+        <span>Encode Message into Video</span>
+      </h2>
+
+      <div>
+        <label for="inputVideoEncode" class="block text-gray-200 text-lg font-medium mb-2">
+          <i data-lucide="upload" class="inline-block mr-2"></i> Select Video to Encode:
+        </label>
+        <input type="file" id="inputVideoEncode" accept="video/*" class="block w-full text-sm text-gray-100">
+      </div>
+
+      <div>
+        <label for="messageInput" class="block text-gray-200 text-lg font-medium mb-2">
+          <i data-lucide="message-square" class="inline-block mr-2"></i> Message to Hide:
+        </label>
+        <textarea id="messageInput" placeholder="Enter text message here" class="w-full p-3 rounded-lg bg-white bg-opacity-20 border border-white border-opacity-30 text-white placeholder-gray-300 focus:ring-2 focus:ring-purple-400 focus:border-transparent transition-all duration-200 text-base resize-y min-h-[100px]"></textarea>
+      </div>
+
+      <div>
+        <label for="passwordInputEncode" class="block text-gray-200 text-lg font-medium mb-2">
+          <i data-lucide="lock" class="inline-block mr-2"></i> Password:
+        </label>
+        <input type="password" id="passwordInputEncode" placeholder="Enter password" class="w-full p-3 rounded-lg bg-white bg-opacity-20 border border-white border-opacity-30 text-white placeholder-gray-300 focus:ring-2 focus:ring-purple-400 focus:border-transparent transition-all duration-200 text-base">
+      </div>
+
+      <button id="encodeButton" class="w-full py-3 px-6 rounded-full font-bold text-lg shadow-lg transform transition-all duration-300 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 hover:scale-105 active:scale-95 flex items-center justify-center space-x-2">
+        <i data-lucide="download"></i>
+        <span>Encode & Download Stego Video</span>
+      </button>
+    </section>
+
+    <!-- Separator -->
+    <div class="relative flex items-center justify-center py-4">
+      <div class="absolute inset-0 flex items-center">
+        <span class="w-full border-t border-white border-opacity-30"></span>
+      </div>
+      <div class="relative px-3 bg-white bg-opacity-10 backdrop-blur-md rounded-full text-sm text-gray-200 font-semibold">
+        OR
+      </div>
+    </div>
+
+    <!-- Decoding section -->
+    <section class="bg-white bg-opacity-5 rounded-xl p-6 shadow-inner flex flex-col gap-5 border border-white border-opacity-10 transform transition-all duration-300 hover:shadow-2xl">
+      <h2 class="text-2xl font-bold text-gray-100 flex items-center space-x-3">
+        <i data-lucide="unlock" class="text-green-300"></i>
+        <span>Decode Message from Video</span>
+      </h2>
+
+      <div>
+        <label for="inputVideoDecode" class="block text-gray-200 text-lg font-medium mb-2">
+          <i data-lucide="upload" class="inline-block mr-2"></i> Select Stego Video to Decode:
+        </label>
+        <input type="file" id="inputVideoDecode" accept="video/*" class="block w-full text-sm text-gray-100">
+      </div>
+
+      <div>
+        <label for="passwordInputDecode" class="block text-gray-200 text-lg font-medium mb-2">
+          <i data-lucide="key" class="inline-block mr-2"></i> Password:
+        </label>
+        <input type="password" id="passwordInputDecode" placeholder="Enter password" class="w-full p-3 rounded-lg bg-white bg-opacity-20 border border-white border-opacity-30 text-white placeholder-gray-300 focus:ring-2 focus:ring-green-400 focus:border-transparent transition-all duration-200 text-base">
+      </div>
+
+      <button id="decodeButton" class="w-full py-3 px-6 rounded-full font-bold text-lg shadow-lg transform transition-all duration-300 bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 hover:scale-105 active:scale-95 flex items-center justify-center space-x-2">
+        <i data-lucide="file-text"></i>
+        <span>Decode Message</span>
+      </button>
+
+      <div>
+        <label for="decodedMessage" class="block text-gray-200 text-lg font-medium mb-2">
+          <i data-lucide="message-square" class="inline-block mr-2"></i> Decoded Message:
+        </label>
+        <textarea id="decodedMessage" readonly placeholder="Decoded message appears here" class="w-full p-3 rounded-lg bg-white bg-opacity-20 border border-white border-opacity-30 text-white placeholder-gray-300 focus:ring-2 focus:ring-green-400 focus:border-transparent transition-all duration-200 text-base resize-y min-h-[100px]"></textarea>
+      </div>
+    </section>
+
+    <!-- Log / status -->
+    <section class="bg-white bg-opacity-5 rounded-xl p-6 shadow-inner flex flex-col gap-4 border border-white border-opacity-10">
+      <label class="block text-gray-200 text-lg font-medium flex items-center space-x-2">
+        <i data-lucide="file-text" class="inline-block mr-2"></i> Log / Status:
+      </label>
+      <div id="log" class="bg-black bg-opacity-30 text-gray-100 p-4 h-48 overflow-y-auto font-mono text-sm rounded-lg border border-gray-700 shadow-inner custom-scrollbar"></div>
+    </section>
+
+    <!-- Download link -->
+    <div id="downloadLinkContainer" class="text-center mt-6 hidden">
+      <a id="downloadLink" href="#" download="stego_video.webm" class="inline-flex items-center justify-center py-3 px-8 rounded-full bg-gradient-to-r from-blue-500 to-sky-500 text-white font-bold shadow-lg hover:from-blue-600 hover:to-sky-600 transition-all duration-300 transform hover:scale-105 active:scale-95">
+        <i data-lucide="download" class="mr-2"></i>
+        Click to Download Stego Video
+      </a>
+    </div>
+
+    <!-- Hidden video & canvas for processing -->
+    <video id="hiddenVideo" class="hidden"></video>
+    <canvas id="hiddenCanvas" class="hidden"></canvas>
+  </div>
+
+  <script>
+    // Initialize Lucide Icons
+    lucide.createIcons();
+
+    // Utility functions for logging
+    const logElem = document.getElementById('log');
+    function log(msg) {
+      const p = document.createElement('div');
+      p.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+      logElem.appendChild(p);
+      logElem.scrollTop = logElem.scrollHeight;
+    }
+    function clearLog() {
+      logElem.innerHTML = '';
+    }
+
+    // Custom notification display
+    const notificationContainer = document.getElementById('notification-container');
+    function showCustomNotification(message, type = 'info') {
+      const notification = document.createElement('div');
+      notification.className = `p-4 rounded-lg shadow-xl flex items-center space-x-3 transition-all duration-300 ease-out transform fixed top-4 right-4 z-50`;
+      let iconHtml = '';
+      let bgColor = '';
+
+      switch (type) {
+        case 'info':
+          iconHtml = '<i data-lucide="alert-circle" size="24"></i>';
+          bgColor = 'bg-blue-500';
+          break;
+        case 'success':
+          iconHtml = '<i data-lucide="check-circle" size="24"></i>';
+          bgColor = 'bg-green-500';
+          break;
+        case 'error':
+          iconHtml = '<i data-lucide="x-circle" size="24"></i>';
+          bgColor = 'bg-red-500';
+          break;
+        default:
+          iconHtml = '<i data-lucide="alert-circle" size="24"></i>';
+          bgColor = 'bg-blue-500';
+      }
+
+      notification.classList.add(bgColor);
+      notification.innerHTML = `${iconHtml}<p class="font-semibold">${message}</p>`;
+      notificationContainer.innerHTML = ''; // Clear previous notifications
+      notificationContainer.appendChild(notification);
+      lucide.createIcons(); // Re-render icons for new notification
+
+      setTimeout(() => {
+        notification.classList.add('opacity-0');
+        notification.addEventListener('transitionend', () => notification.remove());
+      }, 5000);
+    }
+
+    // Get elements
+    const inputVideoEncode = document.getElementById('inputVideoEncode');
+    const messageInput = document.getElementById('messageInput');
+    const passwordInputEncode = document.getElementById('passwordInputEncode');
+    const encodeButton = document.getElementById('encodeButton');
+
+    const inputVideoDecode = document.getElementById('inputVideoDecode');
+    const passwordInputDecode = document.getElementById('passwordInputDecode');
+    const decodeButton = document.getElementById('decodeButton');
+    const decodedMessageArea = document.getElementById('decodedMessage');
+
+    const hiddenVideo = document.getElementById('hiddenVideo');
+    const hiddenCanvas = document.getElementById('hiddenCanvas');
+    const ctx = hiddenCanvas.getContext('2d');
+    const downloadLink = document.getElementById('downloadLink');
+    const downloadLinkContainer = document.getElementById('downloadLinkContainer');
+
+    // Web Crypto helpers
+    async function deriveKey(password, salt) {
+      const enc = new TextEncoder();
+      const passKey = await crypto.subtle.importKey(
+        'raw',
+        enc.encode(password),
+        'PBKDF2',
+        false,
+        ['deriveKey']
+      );
+      return crypto.subtle.deriveKey(
+        {
+          name: 'PBKDF2',
+          salt: salt,
+          iterations: 100000,
+          hash: 'SHA-256'
+        },
+        passKey,
+        { name: 'AES-GCM', length: 256 },
+        false,
+        ['encrypt', 'decrypt']
+      );
+    }
+
+    // Convert ArrayBuffer to bit array (0/1)
+    function arrayBufferToBitArray(buf) {
+      const bytes = new Uint8Array(buf);
+      const bits = [];
+      for (let byte of bytes) {
+        for (let i = 7; i >= 0; i--) {
+          bits.push((byte >> i) & 1);
+        }
+      }
+      return bits;
+    }
+    // Convert bit array to Uint8Array (bytes)
+    function bitArrayToUint8Array(bits) {
+      const byteLen = Math.ceil(bits.length / 8);
+      const bytes = new Uint8Array(byteLen);
+      for (let i = 0; i < bits.length; i++) {
+        const byteIndex = Math.floor(i / 8);
+        bytes[byteIndex] = (bytes[byteIndex] << 1) | bits[i];
+        if (i % 8 === 7) {
+          // nothing; next byte will shift fresh
+        }
+      }
+      // If bits.length not multiple of 8, last byte was left-shifted; shift it back:
+      const rem = bits.length % 8;
+      if (rem !== 0) {
+        bytes[byteLen-1] = (bytes[byteLen-1] << (8 - rem)) & 0xFF;
+      }
+      return bytes;
+    }
+
+    // Helper to set button state (disabled/enabled with loading spinner)
+    function setButtonState(button, isLoading, originalText, iconHtml) {
+      button.disabled = isLoading;
+      button.innerHTML = isLoading
+        ? '<div class="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div><span>' + (isLoading ? 'Processing...' : '') + '</span>'
+        : `${iconHtml}<span>${originalText}</span>`;
+
+      if (isLoading) {
+        button.classList.remove('bg-gradient-to-r', 'from-purple-600', 'to-pink-600', 'hover:from-purple-700', 'hover:to-pink-700', 'from-green-600', 'to-teal-600', 'hover:from-green-700', 'hover:to-teal-700');
+        button.classList.add('bg-gradient-to-r', 'from-gray-400', 'to-gray-500', 'cursor-not-allowed');
+      } else {
+        button.classList.remove('bg-gradient-to-r', 'from-gray-400', 'to-gray-500', 'cursor-not-allowed');
+        if (button.id === 'encodeButton') {
+          button.classList.add('bg-gradient-to-r', 'from-purple-600', 'to-pink-600', 'hover:from-purple-700', 'hover:to-pink-700');
+        } else if (button.id === 'decodeButton') {
+          button.classList.add('bg-gradient-to-r', 'from-green-600', 'to-teal-600', 'hover:from-green-700', 'hover:to-teal-700');
+        }
+      }
+      lucide.createIcons(); // Re-render icons after changing innerHTML
+    }
+
+    // Encode process
+    encodeButton.addEventListener('click', async () => {
+      clearLog();
+      downloadLinkContainer.classList.add('hidden');
+      decodedMessageArea.value = '';
+      const file = inputVideoEncode.files[0];
+      const message = messageInput.value;
+      const password = passwordInputEncode.value;
+
+      if (!file) {
+        showCustomNotification('Please select a video file to encode.', 'error');
+        return;
+      }
+      if (!message) {
+        showCustomNotification('Please enter a message to hide.', 'error');
+        return;
+      }
+      if (!password) {
+        showCustomNotification('Please enter a password.', 'error');
+        return;
+      }
+
+      setButtonState(encodeButton, true, 'Encode & Download Stego Video', '<i data-lucide="download"></i>');
+      log('Starting encode process...');
+
+      const videoURL = URL.createObjectURL(file);
+      hiddenVideo.src = videoURL;
+      hiddenVideo.muted = true;
+      hiddenVideo.playsInline = true;
+      hiddenVideo.crossOrigin = 'anonymous';
+
+      try {
+        await new Promise((res, rej) => {
+          hiddenVideo.onloadedmetadata = () => res();
+          hiddenVideo.onerror = () => rej(new Error('Error loading video. Make sure the file is a valid video.'));
+        });
+
+        const width = hiddenVideo.videoWidth;
+        const height = hiddenVideo.videoHeight;
+        if (!width || !height) {
+          throw new Error('Could not get video dimensions.');
+        }
+        hiddenCanvas.width = width;
+        hiddenCanvas.height = height;
+        log(`Video loaded: ${width}x${height}, duration=${hiddenVideo.duration.toFixed(2)}s`);
+
+        let totalFramesEstimate = Math.floor(hiddenVideo.duration * 30);
+        log(`Estimated total frames (approx): ${totalFramesEstimate}`);
+
+        const salt = crypto.getRandomValues(new Uint8Array(16));
+        const iv = crypto.getRandomValues(new Uint8Array(12));
+        const key = await deriveKey(password, salt);
+        const enc = new TextEncoder();
+        const dataBuf = enc.encode(message);
+        let cipherBuf;
+
+        try {
+          cipherBuf = await crypto.subtle.encrypt(
+            { name: 'AES-GCM', iv: iv },
+            key,
+            dataBuf
+          );
+        } catch (e) {
+          console.error(e);
+          throw new Error('Encryption failed.');
+        }
+
+        const cipherBytes = new Uint8Array(cipherBuf);
+        const cipherLength = cipherBytes.byteLength;
+        log(`Message encrypted: ${cipherLength} bytes ciphertext`);
+
+        const headerBytes = new Uint8Array(4);
+        headerBytes[0] = (cipherLength >>> 24) & 0xFF;
+        headerBytes[1] = (cipherLength >>> 16) & 0xFF;
+        headerBytes[2] = (cipherLength >>> 8) & 0xFF;
+        headerBytes[3] = cipherLength & 0xFF;
+
+        const totalPayloadBytes = 4 + salt.byteLength + iv.byteLength + cipherLength;
+        const totalBitsToEmbed = totalPayloadBytes * 8;
+        const capacityBits = width * height * 3 * totalFramesEstimate;
+        log(`Capacity estimate: ${capacityBits} bits; need ${totalBitsToEmbed} bits`);
+
+        if (totalBitsToEmbed > capacityBits) {
+          throw new Error('Message (including encryption overhead) is too large to fit in this video.');
+        }
+
+        const payloadBytes = new Uint8Array(totalPayloadBytes);
+        payloadBytes.set(headerBytes, 0);
+        payloadBytes.set(salt, 4);
+        payloadBytes.set(iv, 4 + salt.byteLength);
+        payloadBytes.set(cipherBytes, 4 + salt.byteLength + iv.byteLength);
+        const payloadBits = arrayBufferToBitArray(payloadBytes.buffer);
+
+        let bitIndex = 0;
+        const totalBits = payloadBits.length;
+        log(`Embedding will use ${totalBits} bits across frames.`);
+
+        const stream = hiddenCanvas.captureStream();
+        let recordedChunks = [];
+        let recorder;
+
+        try {
+          recorder = new MediaRecorder(stream, { mimeType: 'video/webm; codecs=vp8' });
+        } catch (e) {
+          console.error(e);
+          throw new Error('MediaRecorder initialization failed. Browser may not support recording.');
+        }
+
+        recorder.ondataavailable = (e) => {
+          if (e.data && e.data.size > 0) recordedChunks.push(e.data);
+        };
+
+        recorder.onstart = () => {
+          log('MediaRecorder started.');
+        };
+
+        recorder.onstop = () => {
+          log('MediaRecorder stopped. Preparing download link...');
+          const blob = new Blob(recordedChunks, { type: 'video/webm' });
+          const url = URL.createObjectURL(blob);
+          downloadLink.href = url;
+          downloadLink.download = `stego_${file.name.replace(/\.[^/.]+$/, '')}.webm`;
+          downloadLinkContainer.classList.remove('hidden');
+          log('Stego video ready.');
+          URL.revokeObjectURL(videoURL); // Clean up
+          setButtonState(encodeButton, false, 'Encode & Download Stego Video', '<i data-lucide="download"></i>');
+          showCustomNotification('Video encoded successfully!', 'success');
+        };
+
+        let processing = true;
+        hiddenVideo.currentTime = 0;
+        recorder.start();
+
+        const processFrame = (now, metadata) => {
+          if (!processing) return;
+          ctx.drawImage(hiddenVideo, 0, 0, width, height);
+          const imageData = ctx.getImageData(0, 0, width, height);
+          const data = imageData.data;
+
+          for (let i = 0; i < data.length && bitIndex < totalBits; i += 4) {
+            for (let c = 0; c < 3 && bitIndex < totalBits; c++) {
+              data[i + c] = (data[i + c] & 0xFE) | payloadBits[bitIndex];
+              bitIndex++;
+            }
+          }
+          ctx.putImageData(imageData, 0, 0);
+
+          if (bitIndex >= totalBits) {
+            // All bits embedded, continue drawing frames until video ends or stop recorder
+            // No need to set processing = false here, onended will handle it
+          }
+          hiddenVideo.requestVideoFrameCallback(processFrame);
+        };
+
+        hiddenVideo.requestVideoFrameCallback(processFrame);
+        hiddenVideo.play().catch(e => console.error('Play error:', e));
+
+        hiddenVideo.onended = () => {
+            if (processing) { // Ensure this only runs if still processing
+                processing = false;
+                recorder.stop();
+                log('Video playback ended.');
+            }
+        };
+
+      } catch (error) {
+        console.error('Encoding error:', error);
+        log(`Error during encoding: ${error.message}`);
+        showCustomNotification(`Encoding failed: ${error.message}`, 'error');
+        setButtonState(encodeButton, false, 'Encode & Download Stego Video', '<i data-lucide="download"></i>');
+        if (videoURL) URL.revokeObjectURL(videoURL);
+      }
+    });
+
+    // Decode process
+    decodeButton.addEventListener('click', async () => {
+      clearLog();
+      downloadLinkContainer.classList.add('hidden');
+      decodedMessageArea.value = '';
+      const file = inputVideoDecode.files[0];
+      const password = passwordInputDecode.value;
+
+      if (!file) {
+        showCustomNotification('Please select a stego video file to decode.', 'error');
+        return;
+      }
+      if (!password) {
+        showCustomNotification('Please enter the password.', 'error');
+        return;
+      }
+
+      setButtonState(decodeButton, true, 'Decode Message', '<i data-lucide="file-text"></i>');
+      log('Starting decode process...');
+
+      const videoURL = URL.createObjectURL(file);
+      hiddenVideo.src = videoURL;
+      hiddenVideo.muted = true;
+      hiddenVideo.playsInline = true;
+      hiddenVideo.crossOrigin = 'anonymous';
+
+      let extractedBits = [];
+      let headerBitsNeeded = 32;
+      let totalBitsNeeded = null;
+      let payloadBytesLength = null;
+
+      try {
+        await new Promise((res, rej) => {
+          hiddenVideo.onloadedmetadata = () => res();
+          hiddenVideo.onerror = () => rej(new Error('Error loading video. Make sure the file is a valid video.'));
+        });
+
+        const width = hiddenVideo.videoWidth;
+        const height = hiddenVideo.videoHeight;
+        hiddenCanvas.width = width;
+        hiddenCanvas.height = height;
+        log(`Video loaded: ${width}x${height}, duration=${hiddenVideo.duration.toFixed(2)}s`);
+
+        let processing = true;
+        hiddenVideo.currentTime = 0;
+
+        const processFrameDecode = async (now, metadata) => {
+          if (!processing) return;
+          ctx.drawImage(hiddenVideo, 0, 0, width, height);
+          const imageData = ctx.getImageData(0, 0, width, height);
+          const data = imageData.data;
+
+          for (let i = 0; i < data.length; i += 4) {
+            for (let c = 0; c < 3; c++) {
+              const bit = data[i + c] & 1;
+              extractedBits.push(bit);
+
+              if (totalBitsNeeded === null && extractedBits.length === headerBitsNeeded) {
+                let len = 0;
+                for (let j = 0; j < 32; j++) {
+                  len = (len << 1) | extractedBits[j];
+                }
+                payloadBytesLength = len;
+                log(`Extracted ciphertext length from header: ${payloadBytesLength} bytes`);
+                const totalBytes = 16 + 12 + payloadBytesLength; // salt + iv + ciphertext
+                totalBitsNeeded = headerBitsNeeded + totalBytes * 8;
+              }
+
+              if (totalBitsNeeded !== null && extractedBits.length >= totalBitsNeeded) {
+                processing = false;
+                hiddenVideo.pause();
+                hiddenVideo.onended = null; // Prevent onended from firing if already finished
+                await finalizeDecoding();
+                return;
+              }
+            }
+          }
+          hiddenVideo.requestVideoFrameCallback(processFrameDecode);
+        };
+
+        hiddenVideo.requestVideoFrameCallback(processFrameDecode);
+        hiddenVideo.play().catch(e => console.error('Play error:', e));
+
+        hiddenVideo.onended = async () => {
+          if (processing) { // If video ended before full payload
+            processing = false;
+            if (totalBitsNeeded === null) {
+              log('Could not extract header; video may not contain hidden data or is too short.');
+              showCustomNotification('Could not extract header. Video may not contain hidden data.', 'error');
+            } else {
+              log('Video ended before full payload extracted. Data may be incomplete.');
+              showCustomNotification('Video ended before full payload was extracted. Data may be incomplete.', 'error');
+            }
+            setButtonState(decodeButton, false, 'Decode Message', '<i data-lucide="file-text"></i>');
+            URL.revokeObjectURL(videoURL);
+          }
+        };
+
+        async function finalizeDecoding() {
+          log('Finished extracting bits.');
+          const bits = extractedBits.slice(32, totalBitsNeeded);
+          const payloadBytes = bitArrayToUint8Array(bits);
+
+          const salt = payloadBytes.slice(0, 16);
+          const iv = payloadBytes.slice(16, 28);
+          const cipherBytes = payloadBytes.slice(28);
+
+          log('Extracted salt and IV; attempting decryption...');
+          try {
+            const key = await deriveKey(password, salt);
+            const plainBuf = await crypto.subtle.decrypt(
+              { name: 'AES-GCM', iv: iv },
+              key,
+              cipherBytes
+            );
+            const dec = new TextDecoder();
+            const message = dec.decode(plainBuf);
+            decodedMessageArea.value = message;
+            log('Decryption successful.');
+            showCustomNotification('Message decoded successfully!', 'success');
+          } catch (e) {
+            console.error(e);
+            log('Decryption failed. Wrong password or corrupted data.');
+            showCustomNotification('Decryption failed. Wrong password or corrupted data.', 'error');
+          } finally {
+            setButtonState(decodeButton, false, 'Decode Message', '<i data-lucide="file-text"></i>');
+            URL.revokeObjectURL(videoURL);
+          }
+        }
+
+      } catch (error) {
+        console.error('Decoding error:', error);
+        log(`Error during decoding: ${error.message}`);
+        showCustomNotification(`Decoding failed: ${error.message}`, 'error');
+        setButtonState(decodeButton, false, 'Decode Message', '<i data-lucide="file-text"></i>');
+        if (videoURL) URL.revokeObjectURL(videoURL);
+      }
+    });
+  </script>
+</body>
+</html>
+

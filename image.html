@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Image Steganography Tool</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Custom styles for Inter font and general body styling */
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f0f2f5; /* Light gray background */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh; /* Full viewport height */
+      margin: 0;
+      padding: 1rem; /* Add some padding for smaller screens */
+    }
+  </style>
+</head>
+<body>
+<div id="image-stego-tool" class="bg-white p-6 md:p-8 rounded-xl shadow-2xl max-w-lg w-full transform transition-all duration-300 ease-in-out hover:scale-[1.01]">
+  <h2 class="text-3xl font-extrabold text-center text-gray-800 mb-6">Image Steganography Tool</h2>
+
+  <!-- Message Display Area -->
+  <div id="app-message" class="hidden p-3 mb-4 rounded-lg text-sm text-center font-medium" role="alert"></div>
+
+  <div class="section mb-8 p-6 bg-blue-50 rounded-lg shadow-inner">
+    <h3 class="text-xl font-semibold text-blue-800 mb-4">Encode Message into Image</h3>
+    <input type="file" id="cover-input" accept="image/*" class="w-full text-gray-700 py-2 px-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+    <textarea id="message-input" placeholder="Enter secret message" rows="4" class="w-full p-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 resize-y text-gray-800"></textarea>
+    <input type="password" id="encode-password" placeholder="Password" class="w-full p-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 text-gray-800">
+    <button id="encode-button" disabled class="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed">
+      Encode & Download
+    </button>
+    <a id="download-link" class="hidden mt-4 block text-center text-blue-600 hover:underline font-medium" download="stego-image.png"></a>
+    <canvas id="encode-canvas" class="hidden"></canvas>
+  </div>
+
+  <div class="section p-6 bg-green-50 rounded-lg shadow-inner">
+    <h3 class="text-xl font-semibold text-green-800 mb-4">Decode Message from Image</h3>
+    <input type="file" id="stego-input" accept="image/*" class="w-full text-gray-700 py-2 px-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100">
+    <input type="password" id="decode-password" placeholder="Password" class="w-full p-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 text-gray-800">
+    <button id="decode-button" disabled class="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed">
+      Decode
+    </button>
+    <div id="decoded-message" class="hidden p-4 mt-4 bg-gray-100 border border-gray-300 rounded-lg text-gray-800 whitespace-pre-wrap font-mono text-sm"></div>
+    <canvas id="decode-canvas" class="hidden"></canvas>
+  </div>
+
+  <script>
+    (function() {
+      // Get the message display element
+      const appMessage = document.getElementById('app-message');
+
+      // Function to display messages
+      function showMessage(message, type = 'info') {
+        appMessage.textContent = message;
+        appMessage.classList.remove('hidden', 'bg-red-100', 'text-red-700', 'bg-green-100', 'text-green-700', 'bg-yellow-100', 'text-yellow-700', 'bg-blue-100', 'text-blue-700');
+        if (type === 'error') {
+          appMessage.classList.add('bg-red-100', 'text-red-700');
+        } else if (type === 'success') {
+          appMessage.classList.add('bg-green-100', 'text-green-700');
+        } else if (type === 'warning') {
+          appMessage.classList.add('bg-yellow-100', 'text-yellow-700');
+        } else { // default to info
+          appMessage.classList.add('bg-blue-100', 'text-blue-700');
+        }
+        appMessage.classList.remove('hidden');
+        // Automatically hide after a few seconds
+        setTimeout(() => {
+          appMessage.classList.add('hidden');
+        }, 5000);
+      }
+
+      // Utility: derive an AES-GCM key from password and salt
+      async function deriveKey(password, salt) {
+        const pwUtf8 = new TextEncoder().encode(password);
+        const pwKey = await crypto.subtle.importKey(
+          'raw', pwUtf8, 'PBKDF2', false, ['deriveKey']
+        );
+        return crypto.subtle.deriveKey(
+          {
+            name: 'PBKDF2',
+            salt: salt,
+            iterations: 100000,
+            hash: 'SHA-256'
+          },
+          pwKey,
+          { name: 'AES-GCM', length: 256 },
+          false,
+          ['encrypt','decrypt']
+        );
+      }
+
+      // Encrypt message -> Uint8Array: [salt(16) | iv(12) | ciphertext]
+      async function encryptMessage(password, message) {
+        try {
+          const salt = crypto.getRandomValues(new Uint8Array(16));
+          const key = await deriveKey(password, salt);
+          const iv = crypto.getRandomValues(new Uint8Array(12));
+          const msgUint8 = new TextEncoder().encode(message);
+          const cipherBuffer = await crypto.subtle.encrypt(
+            { name: 'AES-GCM', iv: iv },
+            key,
+            msgUint8
+          );
+          const cipherUint8 = new Uint8Array(cipherBuffer);
+          // Concatenate salt + iv + ciphertext
+          const result = new Uint8Array(salt.byteLength + iv.byteLength + cipherUint8.byteLength);
+          result.set(salt, 0);
+          result.set(iv, salt.byteLength);
+          result.set(cipherUint8, salt.byteLength + iv.byteLength);
+          return result;
+        } catch (error) {
+          console.error("Encryption failed:", error);
+          throw new Error("Failed to encrypt message. Check password or message content.");
+        }
+      }
+
+      // Decrypt data Uint8Array [salt|iv|ciphertext] -> plaintext string
+      async function decryptData(password, data) {
+        try {
+          if (data.byteLength < 16 + 12) {
+            throw new Error('Data is too short. Image may not contain hidden data or is corrupted.');
+          }
+          const salt = data.slice(0, 16);
+          const iv = data.slice(16, 16 + 12);
+          const ciphertext = data.slice(16 + 12);
+          const key = await deriveKey(password, salt);
+          const plainBuffer = await crypto.subtle.decrypt(
+            { name: 'AES-GCM', iv: iv },
+            key,
+            ciphertext
+          );
+          return new TextDecoder().decode(plainBuffer);
+        } catch (error) {
+          console.error("Decryption failed:", error);
+          throw new Error('Failed to decrypt message. Make sure the password is correct.');
+        }
+      }
+
+      // Embed bits of Uint8Array into imageData.data LSBs of R,G,B
+      function embedDataInImageData(imageData, dataBytes) {
+        const pixelData = imageData.data;
+        const totalBits = (dataBytes.length + 4) * 8; // 4 bytes for length prefix
+        const width = imageData.width, height = imageData.height;
+        // Capacity in bits: Each pixel has 3 channels (R,G,B) used for embedding, 1 bit per channel.
+        const capacity = width * height * 3;
+        if (capacity < totalBits) {
+          throw new Error(`Image too small for message. Capacity: ${capacity} bits, Required: ${totalBits} bits.`);
+        }
+        // Create header: 4-byte big-endian length of dataBytes
+        const dataLen = dataBytes.length;
+        const header = new Uint8Array(4);
+        // Bitwise operations to put length into 4 bytes
+        header[0] = (dataLen >>> 24) & 0xFF;
+        header[1] = (dataLen >>> 16) & 0xFF;
+        header[2] = (dataLen >>> 8) & 0xFF;
+        header[3] = dataLen & 0xFF;
+
+        // Combine header + dataBytes
+        const full = new Uint8Array(4 + dataLen);
+        full.set(header, 0);
+        full.set(dataBytes, 4);
+
+        // Convert full data to bit array for embedding
+        const bits = [];
+        for (let i = 0; i < full.length; i++) {
+          for (let b = 7; b >= 0; b--) { // Most significant bit first
+            bits.push((full[i] >> b) & 1);
+          }
+        }
+
+        // Embed bits into LSBs of R, G, B channels
+        let bitIdx = 0;
+        for (let i = 0; i < pixelData.length && bitIdx < bits.length; i += 4) {
+          // Channels R (i), G (i+1), B (i+2); skip alpha (i+3)
+          for (let channel = 0; channel < 3 && bitIdx < bits.length; channel++) {
+            // Clear LSB (AND with 0xFE) and then set LSB to the new bit (OR with bit)
+            pixelData[i + channel] = (pixelData[i + channel] & 0xFE) | bits[bitIdx];
+            bitIdx++;
+          }
+        }
+        return imageData; // Return modified imageData
+      }
+
+      // Extract embedded Uint8Array from imageData.data LSBs
+      function extractDataFromImageData(imageData) {
+        const pixelData = imageData.data;
+        const bits = [];
+        // Read bits from R,G,B channels sequentially
+        for (let i = 0; i < pixelData.length; i += 4) {
+          for (let channel = 0; channel < 3; channel++) {
+            bits.push(pixelData[i + channel] & 1);
+          }
+        }
+
+        // First 32 bits => length of the embedded data (excluding the 4-byte header)
+        if (bits.length < 32) {
+          throw new Error('Not enough bits to read data length. Image may not contain hidden data.');
+        }
+
+        let dataLen = 0;
+        for (let i = 0; i < 32; i++) {
+          dataLen = (dataLen << 1) | bits[i]; // Reconstruct length from bits
+        }
+
+        // Total bits including 4 bytes for length + actual data bytes
+        const totalBits = (4 + dataLen) * 8;
+        if (bits.length < totalBits) {
+          throw new Error('Incomplete hidden data or image corrupted. Try a different password or image.');
+        }
+
+        // Reconstruct bytes from bits
+        const bytes = new Uint8Array(4 + dataLen);
+        for (let byteIdx = 0; byteIdx < 4 + dataLen; byteIdx++) {
+          let val = 0;
+          for (let b = 0; b < 8; b++) {
+            const bit = bits[byteIdx * 8 + b];
+            val = (val << 1) | bit; // Reconstruct byte from 8 bits
+          }
+          bytes[byteIdx] = val;
+        }
+        // bytes[0..3] is header (length); we return bytes.slice(4) which is the actual encrypted message
+        return bytes.slice(4);
+      }
+
+      // Helpers to load image file into an Image object
+      function loadImageFile(file) {
+        return new Promise((resolve, reject) => {
+          if (!file || !file.type.startsWith('image/')) {
+            return reject(new Error('Please select a valid image file.'));
+          }
+          const reader = new FileReader();
+          reader.onload = () => {
+            const img = new Image();
+            img.onload = () => resolve(img);
+            img.onerror = e => reject(new Error('Failed to load image. Ensure it is a valid image file.'));
+            img.src = reader.result;
+          };
+          reader.onerror = () => reject(new Error('Failed to read file. Please try again.'));
+          reader.readAsDataURL(file);
+        });
+      }
+
+      // Encode workflow elements
+      const coverInput = document.getElementById('cover-input');
+      const messageInput = document.getElementById('message-input');
+      const encodePassword = document.getElementById('encode-password');
+      const encodeButton = document.getElementById('encode-button');
+      const downloadLink = document.getElementById('download-link');
+      const encodeCanvas = document.getElementById('encode-canvas');
+      let coverImage = null;
+
+      // Function to update the state of the encode button based on inputs
+      function updateEncodeButtonState() {
+        encodeButton.disabled = !(coverImage && messageInput.value.length > 0 && encodePassword.value.length > 0);
+      }
+
+      // Event listener for cover image input change
+      coverInput.addEventListener('change', async () => {
+        downloadLink.classList.add('hidden'); // Hide download link
+        const file = coverInput.files[0];
+        if (!file) {
+          coverImage = null;
+          updateEncodeButtonState();
+          return;
+        }
+        try {
+          coverImage = await loadImageFile(file);
+          showMessage('Image loaded successfully for encoding.', 'success');
+        } catch (err) {
+          showMessage('Error loading cover image: ' + err.message, 'error');
+          coverImage = null;
+        }
+        updateEncodeButtonState();
+      });
+
+      // Event listeners for message and password inputs to enable/disable button
+      messageInput.addEventListener('input', updateEncodeButtonState);
+      encodePassword.addEventListener('input', updateEncodeButtonState);
+
+      // Event listener for encode button click
+      encodeButton.addEventListener('click', async () => {
+        encodeButton.disabled = true; // Disable button during processing
+        downloadLink.classList.add('hidden'); // Hide download link
+        appMessage.classList.add('hidden'); // Hide any previous messages
+
+        try {
+          const password = encodePassword.value;
+          const message = messageInput.value;
+
+          if (!coverImage) {
+            throw new Error("Please select a cover image first.");
+          }
+          if (message.length === 0) {
+            throw new Error("Please enter a message to encode.");
+          }
+          if (password.length === 0) {
+            throw new Error("Please enter a password for encryption.");
+          }
+
+          showMessage('Encoding message, please wait...', 'info');
+
+          // Encrypt message
+          const encryptedBytes = await encryptMessage(password, message);
+
+          // Prepare canvas for drawing and embedding
+          encodeCanvas.width = coverImage.naturalWidth;
+          encodeCanvas.height = coverImage.naturalHeight;
+          const ctx = encodeCanvas.getContext('2d');
+          ctx.clearRect(0, 0, encodeCanvas.width, encodeCanvas.height);
+          ctx.drawImage(coverImage, 0, 0, encodeCanvas.width, encodeCanvas.height);
+          const imageData = ctx.getImageData(0, 0, encodeCanvas.width, encodeCanvas.height);
+
+          // Embed encrypted data into image data
+          embedDataInImageData(imageData, encryptedBytes);
+          ctx.putImageData(imageData, 0, 0); // Put modified image data back to canvas
+
+          // Create download link for the steganographic image
+          encodeCanvas.toBlob(blob => {
+            if (blob) {
+              const url = URL.createObjectURL(blob);
+              downloadLink.href = url;
+              downloadLink.textContent = 'Download Stego Image (stego-image.png)';
+              downloadLink.classList.remove('hidden');
+              showMessage('Message encoded successfully! Download your stego image.', 'success');
+            } else {
+              showMessage('Failed to create stego image for download.', 'error');
+            }
+          }, 'image/png'); // Always save as PNG to preserve LSB data
+
+        } catch (err) {
+          showMessage('Encoding Error: ' + err.message, 'error');
+        } finally {
+          encodeButton.disabled = false; // Re-enable button
+        }
+      });
+
+      // Decode workflow elements
+      const stegoInput = document.getElementById('stego-input');
+      const decodePassword = document.getElementById('decode-password');
+      const decodeButton = document.getElementById('decode-button');
+      const decodedMessageDiv = document.getElementById('decoded-message');
+      const decodeCanvas = document.getElementById('decode-canvas');
+      let stegoImage = null;
+
+      // Function to update the state of the decode button
+      function updateDecodeButtonState() {
+        decodeButton.disabled = !(stegoImage && decodePassword.value.length > 0);
+      }
+
+      // Event listener for stego image input change
+      stegoInput.addEventListener('change', async () => {
+        decodedMessageDiv.classList.add('hidden'); // Hide decoded message
+        decodedMessageDiv.textContent = ''; // Clear decoded message
+        const file = stegoInput.files[0];
+        if (!file) {
+          stegoImage = null;
+          updateDecodeButtonState();
+          return;
+        }
+        try {
+          stegoImage = await loadImageFile(file);
+          showMessage('Image loaded successfully for decoding.', 'success');
+        } catch (err) {
+          showMessage('Error loading stego image: ' + err.message, 'error');
+          stegoImage = null;
+        }
+        updateDecodeButtonState();
+      });
+
+      // Event listener for decode password input
+      decodePassword.addEventListener('input', updateDecodeButtonState);
+
+      // Event listener for decode button click
+      decodeButton.addEventListener('click', async () => {
+        decodeButton.disabled = true; // Disable button during processing
+        decodedMessageDiv.classList.add('hidden'); // Hide decoded message
+        decodedMessageDiv.textContent = ''; // Clear decoded message
+        appMessage.classList.add('hidden'); // Hide any previous messages
+
+        try {
+          const password = decodePassword.value;
+
+          if (!stegoImage) {
+            throw new Error("Please select a steganographic image first.");
+          }
+          if (password.length === 0) {
+            throw new Error("Please enter the password for decryption.");
+          }
+
+          showMessage('Decoding message, please wait...', 'info');
+
+          // Prepare canvas for drawing and extracting
+          decodeCanvas.width = stegoImage.naturalWidth;
+          decodeCanvas.height = stegoImage.naturalHeight;
+          const ctx = decodeCanvas.getContext('2d');
+          ctx.clearRect(0, 0, decodeCanvas.width, decodeCanvas.height);
+          ctx.drawImage(stegoImage, 0, 0, decodeCanvas.width, decodeCanvas.height);
+          const imageData = ctx.getImageData(0, 0, decodeCanvas.width, decodeCanvas.height);
+
+          // Extract embedded encrypted bytes
+          const embeddedBytes = extractDataFromImageData(imageData);
+
+          // Decrypt the message
+          const message = await decryptData(password, embeddedBytes);
+
+          decodedMessageDiv.textContent = message;
+          decodedMessageDiv.classList.remove('hidden'); // Show decoded message
+          showMessage('Message decoded successfully!', 'success');
+
+        } catch (err) {
+          showMessage('Decoding Error: ' + err.message, 'error');
+          decodedMessageDiv.textContent = 'Could not decode message. ' + err.message;
+          decodedMessageDiv.classList.remove('hidden'); // Show error in message div
+        } finally {
+          decodeButton.disabled = false; // Re-enable button
+        }
+      });
+    })();
+  </script>
+</div>
+</body>
+</html>
+

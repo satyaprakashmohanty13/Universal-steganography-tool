@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Steganography Tool</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for the Inter font */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-purple-600 to-blue-500 min-h-screen flex flex-col items-center justify-center p-4 space-y-8">
+    <h1 class="text-5xl font-extrabold text-white text-center mb-4 leading-tight">
+        Text Steganography Tool
+    </h1>
+
+    <!-- Encoder Section -->
+    <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-2xl transform transition-all duration-300 hover:scale-[1.01]">
+        <h2 class="text-3xl font-bold text-center text-gray-800 mb-6 border-b pb-4">
+            <span class="inline-block px-4 py-2 bg-blue-100 rounded-full text-blue-800">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 inline-block mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                </svg>
+                Encode Message
+            </span>
+        </h2>
+
+        <!-- Encoder - Cover Text Input -->
+        <div class="mb-4">
+            <label for="encodeCoverText" class="block text-gray-700 text-sm font-semibold mb-2">
+                Cover Text (where the secret message will be hidden):
+            </label>
+            <textarea id="encodeCoverText" rows="6" placeholder="Enter your cover text here..."
+                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-200 resize-y"></textarea>
+        </div>
+
+        <!-- Encoder - Secret Message Input -->
+        <div class="mb-4">
+            <label for="encodeSecretMessage" class="block text-gray-700 text-sm font-semibold mb-2">
+                Secret Message (to hide):
+            </label>
+            <textarea id="encodeSecretMessage" rows="4" placeholder="Enter your secret message here..."
+                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-200 resize-y"></textarea>
+        </div>
+
+        <!-- Encoder - Password Input -->
+        <div class="mb-6">
+            <label for="encodePassword" class="block text-gray-700 text-sm font-semibold mb-2">
+                Password:
+            </label>
+            <input type="password" id="encodePassword" placeholder="Enter a password for encryption"
+                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-200">
+        </div>
+
+        <!-- Encode Button -->
+        <div class="flex justify-center mb-6">
+            <button id="encodeBtn"
+                class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg transform hover:scale-105 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75">
+                Encode Message
+            </button>
+        </div>
+
+        <!-- Encoder - Output Area -->
+        <div class="mb-4">
+            <label for="encodedOutput" class="block text-gray-700 text-sm font-semibold mb-2">
+                Encoded Text (copy this!):
+            </label>
+            <textarea id="encodedOutput" rows="8" readonly placeholder="Encoded message will appear here..."
+                class="w-full p-3 border border-gray-300 bg-gray-50 rounded-lg focus:outline-none resize-y"></textarea>
+        </div>
+
+        <!-- Encoder Message Area -->
+        <div id="encodeMessageArea" class="text-center text-sm font-medium"></div>
+    </div>
+
+    <!-- Decoder Section -->
+    <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-2xl transform transition-all duration-300 hover:scale-[1.01]">
+        <h2 class="text-3xl font-bold text-center text-gray-800 mb-6 border-b pb-4">
+            <span class="inline-block px-4 py-2 bg-green-100 rounded-full text-green-800">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 inline-block mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                </svg>
+                Decode Message
+            </span>
+        </h2>
+
+        <!-- Decoder - Stego Text Input -->
+        <div class="mb-4">
+            <label for="decodeStegoText" class="block text-gray-700 text-sm font-semibold mb-2">
+                Text containing hidden message:
+            </label>
+            <textarea id="decodeStegoText" rows="6" placeholder="Paste the encoded text here..."
+                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 transition-all duration-200 resize-y"></textarea>
+        </div>
+
+        <!-- Decoder - Password Input -->
+        <div class="mb-6">
+            <label for="decodePassword" class="block text-gray-700 text-sm font-semibold mb-2">
+                Password:
+            </label>
+            <input type="password" id="decodePassword" placeholder="Enter the password for decryption"
+                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 transition-all duration-200">
+        </div>
+
+        <!-- Decode Button -->
+        <div class="flex justify-center mb-6">
+            <button id="decodeBtn"
+                class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg transform hover:scale-105 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-opacity-75">
+                Decode Message
+            </button>
+        </div>
+
+        <!-- Decoder - Decoded Message Output -->
+        <div class="mb-4">
+            <label for="decodedOutputMessage" class="block text-gray-700 text-sm font-semibold mb-2">
+                Decoded Secret Message:
+            </label>
+            <textarea id="decodedOutputMessage" rows="4" readonly placeholder="Decoded secret message will appear here..."
+                class="w-full p-3 border border-gray-300 bg-gray-50 rounded-lg focus:outline-none resize-y"></textarea>
+        </div>
+
+        <!-- Decoder Message Area -->
+        <div id="decodeMessageArea" class="text-center text-sm font-medium"></div>
+    </div>
+
+    <script>
+        // --- DOM Elements for Encoder ---
+        const encodeCoverTextInput = document.getElementById('encodeCoverText');
+        const encodeSecretMessageInput = document.getElementById('encodeSecretMessage');
+        const encodePasswordInput = document.getElementById('encodePassword');
+        const encodeBtn = document.getElementById('encodeBtn');
+        const encodedOutput = document.getElementById('encodedOutput');
+        const encodeMessageArea = document.getElementById('encodeMessageArea');
+
+        // --- DOM Elements for Decoder ---
+        const decodeStegoText = document.getElementById('decodeStegoText');
+        const decodePasswordInput = document.getElementById('decodePassword');
+        const decodeBtn = document.getElementById('decodeBtn');
+        const decodedOutputMessage = document.getElementById('decodedOutputMessage');
+        const decodeMessageArea = document.getElementById('decodeMessageArea');
+
+        // Zero-width characters for embedding bits
+        const ZWNJ = '\u200C'; // Represents '0' (Zero Width Non-Joiner)
+        const ZWJ = '\u200D'; // Represents '1' (Zero Width Joiner)
+
+        /**
+         * Clears any previous messages in a specific message area.
+         * @param {HTMLElement} messageElement - The DOM element for the message area.
+         */
+        function clearMessage(messageElement) {
+            messageElement.textContent = '';
+            messageElement.classList.remove('text-green-600', 'text-red-600');
+        }
+
+        /**
+         * Displays a message (success or error) in a specific message area.
+         * @param {HTMLElement} messageElement - The DOM element for the message area.
+         * @param {string} message - The message to display.
+         * @param {boolean} isError - True if it's an error message, false for success.
+         */
+        function displayMessage(messageElement, message, isError = false) {
+            clearMessage(messageElement);
+            messageElement.textContent = message;
+            messageElement.classList.add(isError ? 'text-red-600' : 'text-green-600');
+        }
+
+        /**
+         * Generates a shift value from the password for the simple cipher.
+         * The shift value is the sum of character codes of the password modulo 94 (printable ASCII range).
+         * This ensures the shift stays within a reasonable range for basic character manipulation.
+         * @param {string} password - The password string.
+         * @returns {number} The calculated shift value.
+         */
+        function getShiftValue(password) {
+            let shift = 0;
+            for (let i = 0; i < password.length; i++) {
+                shift += password.charCodeAt(i);
+            }
+            // Use 94 for printable ASCII characters (33-126) for a simple Caesar-like shift
+            return shift % 94;
+        }
+
+        /**
+         * Encrypts a string using a simple character-shifting cipher based on the password.
+         * Each character's ASCII code is shifted by the 'shiftValue' derived from the password.
+         * This is for demonstration and is NOT cryptographically secure.
+         * @param {string} text - The text to encrypt.
+         * @param {string} password - The password for encryption.
+         * @returns {string} The encrypted text.
+         */
+        function encrypt(text, password) {
+            if (!text || !password) return '';
+            const shift = getShiftValue(password);
+            let encryptedText = '';
+            for (let i = 0; i < text.length; i++) {
+                let charCode = text.charCodeAt(i);
+                // Shift only printable ASCII characters (32 to 126)
+                if (charCode >= 32 && charCode <= 126) {
+                    charCode = ((charCode - 32 + shift) % 95) + 32;
+                }
+                encryptedText += String.fromCharCode(charCode);
+            }
+            return encryptedText;
+        }
+
+        /**
+         * Decrypts a string encrypted with the simple character-shifting cipher.
+         * Each character's ASCII code is shifted back by the 'shiftValue'.
+         * @param {string} encryptedText - The text to decrypt.
+         * @param {string} password - The password used for decryption.
+         * @returns {string} The decrypted text.
+         */
+        function decrypt(encryptedText, password) {
+            if (!encryptedText || !password) return '';
+            const shift = getShiftValue(password);
+            let decryptedText = '';
+            for (let i = 0; i < encryptedText.length; i++) {
+                let charCode = encryptedText.charCodeAt(i);
+                // Shift only printable ASCII characters (32 to 126)
+                if (charCode >= 32 && charCode <= 126) {
+                    charCode = ((charCode - 32 - shift + 95) % 95) + 32; // Add 95 to handle negative results of modulo
+                }
+                decryptedText += String.fromCharCode(charCode);
+            }
+            return decryptedText;
+        }
+
+        /**
+         * Converts a string into its binary representation.
+         * Each character is converted to its 16-bit Unicode representation.
+         * @param {string} text - The input string.
+         * @returns {string} The binary string.
+         */
+        function textToBinary(text) {
+            let binary = '';
+            for (let i = 0; i < text.length; i++) {
+                // Get the Unicode code point of the character
+                const charCode = text.charCodeAt(i);
+                // Convert to 16-bit binary, padding with leading zeros if necessary
+                binary += charCode.toString(2).padStart(16, '0');
+            }
+            return binary;
+        }
+
+        /**
+         * Converts a binary string back into text.
+         * Assumes each 16 bits represent one character.
+         * @param {string} binaryString - The binary string.
+         * @returns {string} The decoded text.
+         */
+        function binaryToText(binaryString) {
+            let text = '';
+            // Process 16 bits at a time
+            for (let i = 0; i < binaryString.length; i += 16) {
+                const sixteenBits = binaryString.substring(i, i + 16);
+                if (sixteenBits.length === 16) { // Ensure we have a full 16-bit chunk
+                    const charCode = parseInt(sixteenBits, 2);
+                    text += String.fromCharCode(charCode);
+                }
+            }
+            return text;
+        }
+
+        /**
+         * Event listener for the Encode button.
+         * Encodes the secret message into the cover text using zero-width characters.
+         */
+        encodeBtn.addEventListener('click', () => {
+            clearMessage(encodeMessageArea);
+            const coverText = encodeCoverTextInput.value;
+            const secretMessage = encodeSecretMessageInput.value;
+            const password = encodePasswordInput.value;
+
+            if (!coverText || !secretMessage || !password) {
+                displayMessage(encodeMessageArea, 'Please fill in all fields to encode.', true);
+                encodedOutput.value = ''; // Clear previous output
+                return;
+            }
+
+            try {
+                // 1. Encrypt the secret message
+                const encryptedMessage = encrypt(secretMessage, password);
+
+                // 2. Convert the encrypted message to binary
+                const binaryMessage = textToBinary(encryptedMessage);
+
+                // 3. Embed binary into cover text using zero-width characters
+                let encodedText = '';
+                let binaryIndex = 0;
+                for (let i = 0; i < coverText.length; i++) {
+                    encodedText += coverText[i]; // Add original character
+
+                    // Insert a zero-width character for each bit of the binary message
+                    // We embed one bit per character of the cover text.
+                    if (binaryIndex < binaryMessage.length) {
+                        if (binaryMessage[binaryIndex] === '0') {
+                            encodedText += ZWNJ;
+                        } else if (binaryMessage[binaryIndex] === '1') {
+                            encodedText += ZWJ;
+                        }
+                        binaryIndex++;
+                    }
+                }
+
+                // If any binary bits are left (cover text too short), append them at the end.
+                // In a real scenario, you'd check capacity first.
+                while (binaryIndex < binaryMessage.length) {
+                    if (binaryMessage[binaryIndex] === '0') {
+                        encodedText += ZWNJ;
+                    } else if (binaryMessage[binaryIndex] === '1') {
+                        encodedText += ZWJ;
+                    }
+                    binaryIndex++;
+                }
+
+                encodedOutput.value = encodedText;
+                displayMessage(encodeMessageArea, 'Message encoded successfully! Copy the text above.', false);
+
+            } catch (error) {
+                console.error("Encoding error:", error);
+                displayMessage(encodeMessageArea, 'An error occurred during encoding: ' + error.message, true);
+            }
+        });
+
+        /**
+         * Event listener for the Decode button.
+         * Extracts zero-width characters, converts to binary, then decrypts the message.
+         */
+        decodeBtn.addEventListener('click', () => {
+            clearMessage(decodeMessageArea);
+            const stegoText = decodeStegoText.value;
+            const password = decodePasswordInput.value;
+
+            if (!stegoText || !password) {
+                displayMessage(decodeMessageArea, 'Please paste the text containing the hidden message and enter the password to decode.', true);
+                decodedOutputMessage.value = ''; // Clear previous output
+                return;
+            }
+
+            try {
+                // 1. Extract binary from zero-width characters
+                let extractedBinary = '';
+                for (let i = 0; i < stegoText.length; i++) {
+                    const char = stegoText[i];
+                    if (char === ZWNJ) {
+                        extractedBinary += '0';
+                    } else if (char === ZWJ) {
+                        extractedBinary += '1';
+                    }
+                }
+
+                if (extractedBinary.length === 0) {
+                    displayMessage(decodeMessageArea, 'No hidden message (zero-width characters) found in the provided text.', true);
+                    decodedOutputMessage.value = '';
+                    return;
+                }
+
+                // Ensure the extracted binary length is a multiple of 16 for proper character reconstruction
+                if (extractedBinary.length % 16 !== 0) {
+                    displayMessage(decodeMessageArea, 'Warning: Incomplete binary data extracted. Message might be corrupted or truncated.', true);
+                    extractedBinary = extractedBinary.substring(0, Math.floor(extractedBinary.length / 16) * 16);
+                }
+
+
+                // 2. Convert binary back to encrypted message
+                const encryptedMessage = binaryToText(extractedBinary);
+
+                // 3. Decrypt the message
+                const decryptedMessage = decrypt(encryptedMessage, password);
+
+                decodedOutputMessage.value = decryptedMessage;
+                displayMessage(decodeMessageArea, 'Message decoded successfully!', false);
+
+            } catch (error) {
+                console.error("Decoding error:", error);
+                displayMessage(decodeMessageArea, 'An error occurred during decoding: ' + error.message, true);
+            }
+        });
+    </script>
+</body>
+</html>
+
