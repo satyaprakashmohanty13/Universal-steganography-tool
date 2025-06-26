@@ -16,9 +16,9 @@
       background-size: cover;
       background-position: center;
       background-attachment: fixed;
-      /* Dark gradient overlay for a royal touch */
-      background-color: #0d0a1b; /* Fallback color */
-      position: relative; /* Needed for pseudo-element overlay */
+      /* Removed the gradient overlay here */
+      /* Simplified background property to only show the image */
+      background-repeat: no-repeat; /* Ensure image doesn't repeat */
       display: flex;
       justify-content: center;
       align-items: center;
@@ -27,17 +27,7 @@
       overflow: hidden; /* Prevent scroll issues with fixed background */
     }
 
-    body::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      /* Darker, subtle gradient overlay */
-      background: linear-gradient(to bottom right, rgba(13, 10, 27, 0.8), rgba(29, 23, 49, 0.85));
-      z-index: -1; /* Place behind content */
-    }
+    /* Removed the body::before pseudo-element that created the overlay */
 
     /* Custom scrollbar for subtle look */
     ::-webkit-scrollbar {
@@ -56,50 +46,59 @@
   </style>
 </head>
 <body class="selection:bg-purple-800 selection:text-white">
-  <div class="container bg-gradient-to-br from-gray-900 to-gray-800 p-8 rounded-xl shadow-2xl w-full max-w-md border border-purple-700 backdrop-blur-sm bg-opacity-70 transform transition-all duration-300 ease-in-out hover:scale-[1.01]">
-    <h2 id="form-title" class="text-3xl font-semibold text-white mb-6 text-center tracking-wide">Sign Up</h2>
+  <!-- Main Container Card: Background is white with 40% opacity -->
+  <div class="container bg-white bg-opacity-40 p-8 rounded-xl shadow-2xl w-full max-w-md border border-purple-700 transform transition-all duration-300 ease-in-out hover:scale-[1.01]">
+    <!-- Form Title: Text color adjusted for readability -->
+    <h2 id="form-title" class="text-3xl font-semibold text-gray-900 mb-6 text-center tracking-wide">Sign Up</h2>
 
     <!-- Email Input -->
     <div class="relative mb-4">
+      <!-- Input Field: Background is gray-100 with 50% opacity, text color adjusted -->
       <input type="email" id="email" placeholder=" "
-             class="peer w-full px-4 py-3 bg-gray-700 text-white border border-purple-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 ease-in-out placeholder-transparent">
-      <label for="email" class="absolute left-4 -top-3.5 text-purple-300 text-sm transition-all duration-200 ease-in-out peer-placeholder-shown:text-gray-400 peer-placeholder-shown:top-3 peer-focus:-top-3.5 peer-focus:text-purple-300 peer-focus:text-sm">Email</label>
+             class="peer w-full px-4 py-3 bg-gray-100 bg-opacity-50 text-gray-900 border border-purple-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 ease-in-out placeholder-transparent">
+      <!-- Label: Text color adjusted for readability -->
+      <label for="email" class="absolute left-4 -top-3.5 text-purple-800 text-sm transition-all duration-200 ease-in-out peer-placeholder-shown:text-gray-700 peer-placeholder-shown:top-3 peer-focus:-top-3.5 peer-focus:text-purple-800 peer-focus:text-sm">Email</label>
     </div>
 
     <!-- Password Input -->
     <div class="relative mb-6">
+      <!-- Input Field: Background is gray-100 with 50% opacity, text color adjusted -->
       <input type="password" id="password" placeholder=" "
-             class="peer w-full px-4 py-3 bg-gray-700 text-white border border-purple-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 ease-in-out placeholder-transparent">
-      <label for="password" class="absolute left-4 -top-3.5 text-purple-300 text-sm transition-all duration-200 ease-in-out peer-placeholder-shown:text-gray-400 peer-placeholder-shown:top-3 peer-focus:-top-3.5 peer-focus:text-purple-300 peer-focus:text-sm">Password</label>
+             class="peer w-full px-4 py-3 bg-gray-100 bg-opacity-50 text-gray-900 border border-purple-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 ease-in-out placeholder-transparent">
+      <!-- Label: Text color adjusted for readability -->
+      <label for="password" class="absolute left-4 -top-3.5 text-purple-800 text-sm transition-all duration-200 ease-in-out peer-placeholder-shown:text-gray-700 peer-placeholder-shown:top-3 peer-focus:-top-3.5 peer-focus:text-purple-800 peer-focus:text-sm">Password</label>
     </div>
 
     <!-- Error Message -->
-    <div id="error" class="text-red-400 text-center mb-4 font-medium transition-opacity duration-300 opacity-0"></div>
+    <div id="error" class="text-red-600 text-center mb-4 font-medium transition-opacity duration-300 opacity-0"></div>
 
     <!-- Email/Password Button -->
-    <button id="email-btn" class="w-full py-3 mb-4 rounded-lg bg-gradient-to-r from-purple-700 to-indigo-700 text-white text-lg font-bold shadow-lg hover:from-purple-800 hover:to-indigo-800 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-gray-900 transition-all duration-300 transform hover:-translate-y-0.5 active:scale-95">
+    <button id="email-btn" class="w-full py-3 mb-4 rounded-lg bg-gradient-to-r from-purple-700 to-indigo-700 text-white text-lg font-bold shadow-lg hover:from-purple-800 hover:to-indigo-800 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-white transition-all duration-300 transform hover:-translate-y-0.5 active:scale-95">
       Create Account
     </button>
 
     <div class="flex items-center justify-center my-6">
-      <div class="h-px bg-gray-600 flex-grow"></div>
-      <span class="text-gray-400 mx-4 text-sm">OR</span>
-      <div class="h-px bg-gray-600 flex-grow"></div>
+      <!-- OR Divider: Lines and text color adjusted for readability -->
+      <div class="h-px bg-gray-400 flex-grow"></div>
+      <span class="text-gray-700 mx-4 text-sm">OR</span>
+      <div class="h-px bg-gray-400 flex-grow"></div>
     </div>
 
     <!-- Social Login Buttons -->
-    <button class="provider-btn w-full py-3 mb-4 rounded-lg bg-gray-700 text-white text-md font-semibold shadow-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-900 transition-all duration-300 flex items-center justify-center transform hover:-translate-y-0.5 active:scale-95" id="google-btn">
+    <!-- Social Button: Background is gray-100 with 50% opacity, text color adjusted -->
+    <button class="provider-btn w-full py-3 mb-4 rounded-lg bg-gray-100 bg-opacity-50 text-gray-900 text-md font-semibold shadow-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2 focus:ring-offset-white transition-all duration-300 flex items-center justify-center transform hover:-translate-y-0.5 active:scale-95" id="google-btn">
       <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google logo" class="w-6 h-6 mr-3">
       Continue with Google
     </button>
 
-    <button class="provider-btn w-full py-3 mb-6 rounded-lg bg-gray-700 text-white text-md font-semibold shadow-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-900 transition-all duration-300 flex items-center justify-center transform hover:-translate-y-0.5 active:scale-95" id="github-btn">
+    <!-- Social Button: Background is gray-100 with 50% opacity, text color adjusted -->
+    <button class="provider-btn w-full py-3 mb-6 rounded-lg bg-gray-100 bg-opacity-50 text-gray-900 text-md font-semibold shadow-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-2 focus:ring-offset-white transition-all duration-300 flex items-center justify-center transform hover:-translate-y-0.5 active:scale-95" id="github-btn">
       <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="GitHub logo" class="w-6 h-6 mr-3">
       Continue with GitHub
     </button>
 
-    <!-- Toggle Link -->
-    <span class="toggle-link block text-purple-400 text-center cursor-pointer text-sm hover:underline transition-colors duration-200" id="toggle-auth">
+    <!-- Toggle Link: Text color adjusted for readability -->
+    <span class="toggle-link block text-purple-800 text-center cursor-pointer text-sm hover:underline transition-colors duration-200" id="toggle-auth">
       Already have an account? Log In
     </span>
   </div>
