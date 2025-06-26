@@ -10,8 +10,7 @@
     /* Custom styles for Inter font and general body styling */
     body {
       font-family: 'Inter', sans-serif;
-      background:url('bb.webp') no-repeat center center fixed;
-  background-size: cover; ; /* Light gray background */
+      background-color: #f0f2f5; /* Light gray background */
       display: flex;
       justify-content: center;
       align-items: center;
@@ -22,7 +21,7 @@
   </style>
 </head>
 <body>
-<div id="image-stego-tool" class="bg-white-100 bg-ocpacity-30 p-6 md:p-8 rounded-xl shadow-2xl max-w-lg w-full transform transition-all duration-300 ease-in-out hover:scale-[1.01]">
+<div id="image-stego-tool" class="bg-white p-6 md:p-8 rounded-xl shadow-2xl max-w-lg w-full transform transition-all duration-300 ease-in-out hover:scale-[1.01]">
   <h2 class="text-3xl font-extrabold text-center text-gray-800 mb-6">Image Steganography Tool</h2>
 
   <!-- Message Display Area -->
@@ -30,9 +29,9 @@
 
   <div class="section mb-8 p-6 bg-blue-50 rounded-lg shadow-inner">
     <h3 class="text-xl font-semibold text-blue-800 mb-4">Encode Message into Image</h3>
-    <input type="file" id="cover-input" accept="image/*" class="w-full text-gray-700 py-2 px-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 bg-ocpacity-30">
-    <textarea id="message-input" placeholder="Enter secret message" rows="4" class="w-full p-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 resize-y text-gray-800 bg-[#71797E] bg-ocpacity-30"></textarea>
-    <input type="password" id="encode-password" placeholder="Password" class="w-full p-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 text-gray-800 bg-[#71797E] bg-ocpacity-30">
+    <input type="file" id="cover-input" accept="image/*" class="w-full text-gray-700 py-2 px-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+    <textarea id="message-input" placeholder="Enter secret message" rows="4" class="w-full p-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 resize-y text-gray-800"></textarea>
+    <input type="password" id="encode-password" placeholder="Password" class="w-full p-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 text-gray-800">
     <button id="encode-button" disabled class="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed">
       Encode & Download
     </button>
@@ -43,7 +42,7 @@
   <div class="section p-6 bg-green-50 rounded-lg shadow-inner">
     <h3 class="text-xl font-semibold text-green-800 mb-4">Decode Message from Image</h3>
     <input type="file" id="stego-input" accept="image/*" class="w-full text-gray-700 py-2 px-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100">
-    <input type="password" id="decode-password" placeholder="Password" class="w-full p-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 text-gray-800 bg-[#71797E] bg-ocpacity-30">
+    <input type="password" id="decode-password" placeholder="Password" class="w-full p-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 text-gray-800">
     <button id="decode-button" disabled class="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed">
       Decode
     </button>
