@@ -55,9 +55,13 @@
     #inputVideoDecode::file-selector-button {
       @apply bg-green-500 text-white hover:bg-green-600 cursor-pointer transition-colors duration-200;
     }
+    .bg-image {
+    background: url('bb.webp') no-repeat center center fixed;
+    background-size: cover;
+  }
   </style>
 </head>
-<body class="min-h-screen bg-gradient-to-br from-purple-800 to-indigo-900 text-white p-4 font-sans flex flex-col items-center justify-center">
+<body class="min-h-screen bg-image text-white p-4 font-sans flex flex-col items-center justify-center">
 
   <!-- Notification Container -->
   <div id="notification-container" class="fixed top-4 right-4 z-50"></div>
