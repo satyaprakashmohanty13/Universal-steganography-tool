@@ -40,7 +40,7 @@
                 Cover Text (where the secret message will be hidden):
             </label>
             <textarea id="encodeCoverText" rows="6" placeholder="Enter your cover text here..."
-                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-200 resize-y"></textarea>
+                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-200 resize-y bg-[#71797E] bg-opacity-30"></textarea>
         </div>
 
         <!-- Encoder - Secret Message Input -->
@@ -49,7 +49,7 @@
                 Secret Message (to hide):
             </label>
             <textarea id="encodeSecretMessage" rows="4" placeholder="Enter your secret message here..."
-                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-200 resize-y"></textarea>
+                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-200 resize-y bg-[#71797E] bg-opacity-30"></textarea>
         </div>
 
         <!-- Encoder - Password Input -->
@@ -58,7 +58,7 @@
                 Password:
             </label>
             <input type="password" id="encodePassword" placeholder="Enter a password for encryption"
-                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-200">
+                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all duration-200 bg-[#71797E] bg-opacity-30">
         </div>
 
         <!-- Encode Button -->
@@ -75,11 +75,11 @@
                 Encoded Text (copy this!):
             </label>
             <textarea id="encodedOutput" rows="8" readonly placeholder="Encoded message will appear here..."
-                class="w-full p-3 border border-gray-300 bg-gray-50 rounded-lg focus:outline-none resize-y"></textarea>
+                class="w-full p-3 border border-gray-300 bg-gray-50 rounded-lg focus:outline-none resize-y bg-[#71797E] bg-opacity-30"></textarea>
         </div>
 
         <!-- Encoder Message Area -->
-        <div id="encodeMessageArea" class="text-center text-sm font-medium"></div>
+        <div id="encodeMessageArea" class="text-center text-sm font-medium bg-[#71797E] bg-opacity-30"></div>
     </div>
 
     <!-- Decoder Section -->
@@ -99,7 +99,7 @@
                 Text containing hidden message:
             </label>
             <textarea id="decodeStegoText" rows="6" placeholder="Paste the encoded text here..."
-                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 transition-all duration-200 resize-y"></textarea>
+                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 transition-all duration-200 resize-y bg-[#71797E] bg-opacity-30"></textarea>
         </div>
 
         <!-- Decoder - Password Input -->
@@ -108,7 +108,7 @@
                 Password:
             </label>
             <input type="password" id="decodePassword" placeholder="Enter the password for decryption"
-                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 transition-all duration-200">
+                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 transition-all duration-200 bg-[#71797E] bg-opacity-30">
         </div>
 
         <!-- Decode Button -->
@@ -125,11 +125,11 @@
                 Decoded Secret Message:
             </label>
             <textarea id="decodedOutputMessage" rows="4" readonly placeholder="Decoded secret message will appear here..."
-                class="w-full p-3 border border-gray-300 bg-gray-50 rounded-lg focus:outline-none resize-y"></textarea>
+                class="w-full p-3 border border-gray-300 bg-gray-50 rounded-lg focus:outline-none resize-y bg-[#71797E] bg-opacity-30"></textarea>
         </div>
 
         <!-- Decoder Message Area -->
-        <div id="decodeMessageArea" class="text-center text-sm font-medium"></div>
+        <div id="decodeMessageArea" class="text-center text-sm font-medium bg-[#71797E] bg-opacity-30"></div>
     </div>
 
     <script>
