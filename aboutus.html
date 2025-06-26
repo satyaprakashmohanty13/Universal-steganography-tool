@@ -21,7 +21,9 @@
     body {
       font-family: 'Inter', sans-serif;
       /* Purple-pink gradient background */
-      background: linear-gradient(to bottom right, #a78bfa, #f472b6); /* Tailwind equivalents: from-purple-400 to-pink-400 */
+     background: url('bb.webp') no-repeat center center fixed;
+     background-size: cover;
+ /* Tailwind equivalents: from-purple-400 to-pink-400 */
       min-height: 100vh; /* Ensure full viewport height */
       display: flex;
       justify-content: center;
@@ -50,7 +52,7 @@
 </head>
 <body class="selection:bg-purple-200 selection:text-purple-800">
   <!-- Main content container, styled as a card -->
-  <div class="container mx-auto p-6 md:p-10 bg-white rounded-xl shadow-2xl max-w-4xl border border-gray-100 transform transition-all duration-300 hover:scale-[1.005] bg-opacity-30">
+  <div class="container mx-auto p-6 md:p-10  rounded-xl shadow-2xl max-w-4xl border border-gray-100 transform transition-all duration-300 hover:scale-[1.005] ">
     
     <!-- Header / Intro Section -->
     <header class="text-center py-8 md:py-12 bg-gradient-to-r from-purple-100 to-pink-100 rounded-lg shadow-inner mb-8">
@@ -70,7 +72,7 @@
     </header>
 
     <!-- About Section -->
-    <section id="about" class="mb-10 p-6 bg-purple-50 bg-opacity-80 rounded-xl shadow-md border border-purple-100">
+    <section id="about" class="mb-10 p-6 bg-purple-50 bg-opacity-60 rounded-xl shadow-md border border-purple-100">
       <h2 class="text-2xl md:text-3xl font-semibold text-purple-800 mb-4 pb-2 border-b-2 border-purple-300 flex items-center gap-2">
         <i class="fas fa-info-circle text-purple-600"></i> Who We Are
       </h2>
@@ -80,7 +82,7 @@
     </section>
 
     <!-- Mission & Vision Section -->
-    <section id="mission-vision" class="mb-10 p-6 bg-pink-50 bg-opacity-80 rounded-xl shadow-md border border-pink-100">
+    <section id="mission-vision" class="mb-10 p-6 bg-pink-50 bg-opacity-60 rounded-xl shadow-md border border-pink-100">
       <h2 class="text-2xl md:text-3xl font-semibold text-pink-800 mb-4 pb-2 border-b-2 border-pink-300 flex items-center gap-2">
         <i class="fas fa-bullseye text-pink-600"></i> Our Mission & Vision
       </h2>
@@ -93,7 +95,7 @@
     </section>
 
     <!-- Features Section -->
-    <section id="features" class="mb-10 p-6 bg-gradient-to-r from-purple-50 to-pink-50 bg-opacity-80 rounded-xl shadow-md border border-purple-100">
+    <section id="features" class="mb-10 p-6 bg-purple-50 bg-opacity-60 rounded-xl shadow-md border border-purple-100">
       <h2 class="text-2xl md:text-3xl font-semibold text-purple-800 mb-4 pb-2 border-b-2 border-purple-300 flex items-center gap-2">
         <i class="fas fa-star text-purple-600"></i> Key Features
       </h2>
@@ -107,11 +109,11 @@
     </section>
 
     <!-- How It Works Section -->
-    <section id="how-it-works" class="mb-10 p-6 bg-blue-50 bg-opacity-80 rounded-xl shadow-md border border-blue-100">
+    <section id="how-it-works" class="mb-10 p-6 bg-blue-50 bg-opacity-60 rounded-xl shadow-md border border-blue-100">
       <h2 class="text-2xl md:text-3xl font-semibold text-blue-800 mb-4 pb-2 border-b-2 border-blue-300 flex items-center gap-2">
         <i class="fas fa-tools text-blue-600"></i> How It Works
       </h2>
-      <div class="p-4 bg-white rounded-lg shadow-inner mb-6 border border-gray-200">
+      <div class="p-4 bg-white rounded-lg shadow-inner mb-6 border border-gray-200 bg-opacity-80">
         <ol class="list-decimal list-inside space-y-3 text-gray-700">
           <li><strong>Choose Carrier Type:</strong> Select whether you want to hide your message in text, an image file, an audio file, or a video file.</li>
           <li><strong>Enter or Upload:</strong> Provide the carrier (e.g., paste the cover text, or upload an image/audio/video file) entirely in your browser.</li>
@@ -126,7 +128,7 @@
     </section>
 
     <!-- Security & Privacy Section -->
-    <section id="security-privacy" class="mb-10 p-6 bg-yellow-50 bg-opacity-80 rounded-xl shadow-md border border-yellow-100">
+    <section id="security-privacy" class="mb-10 p-6 bg-yellow-50 bg-opacity-60 rounded-xl shadow-md border border-yellow-100">
       <h2 class="text-2xl md:text-3xl font-semibold text-yellow-800 mb-4 pb-2 border-b-2 border-yellow-300 flex items-center gap-2">
         <i class="fas fa-lock text-yellow-600"></i> Security & Privacy
       </h2>
@@ -145,7 +147,7 @@
     </section>
 
     <!-- Team / Founder Section -->
-    <section id="team" class="mb-10 p-6 bg-pink-50 bg-opacity-80 rounded-xl shadow-md border border-pink-100">
+    <section id="team" class="mb-10 p-6 bg-pink-50 bg-opacity-60 rounded-xl shadow-md border border-pink-100">
       <h2 class="text-2xl md:text-3xl font-semibold text-pink-800 mb-4 pb-2 border-b-2 border-pink-300 flex items-center gap-2">
         <i class="fas fa-users text-pink-600"></i> Who’s Behind This
       </h2>
@@ -161,7 +163,7 @@
     </section>
 
     <!-- Get Started Section (Call to Action) -->
-    <section id="get-started" class="mb-10 p-6 bg-purple-50 bg-opacity-80 rounded-xl shadow-md border border-purple-100 text-center">
+    <section id="get-started" class="mb-10 p-6 bg-purple-50 bg-opacity-60 rounded-xl shadow-md border border-purple-100 text-center">
       <h2 class="text-2xl md:text-3xl font-semibold text-purple-800 mb-4 pb-2 border-b-2 border-purple-300 inline-block px-4">
         Ready to Get Started?
       </h2>
@@ -173,7 +175,7 @@
         All features run directly in your browser with zero setup.
       </p>
     <!-- Connect With Us Section -->
-    <section id="contact-social" class="mb-10 p-6 bg-purple-50 bg-opacity-80 rounded-xl shadow-md border border-purple-100 text-center">
+    <section id="contact-social" class="mb-10 p-6 bg-purple-50 bg-opacity-70 rounded-xl shadow-md border border-purple-100 text-center">
       <h2 class="text-2xl md:text-3xl font-semibold text-purple-800 mb-6 pb-2 border-b-2 border-purple-300 inline-block px-4">
         Connect With Us
       </h2>
