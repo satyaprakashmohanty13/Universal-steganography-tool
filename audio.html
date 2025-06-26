@@ -18,7 +18,7 @@
   }
 </script>
 <style>
-  /* Custom styles for the scrollbar to make it look nicer */
+  /* Custom styles for the scrollbar to make it nicer */
   ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
@@ -79,9 +79,6 @@
   #mp3-wav-converter-container .mp3-wav-converter-button:disabled {
       background-color: #9ca3af;
   }
-  #mp3-wav-converter-container .mp3-wav-converter-button.mp3-wav-converter-hidden {
-      display: none;
-  }
   #mp3-wav-converter-container .mp3-wav-converter-button[download] {
       background-color: #10b981; /* Success green for download button */
   }
@@ -90,7 +87,7 @@
   }
 </style>
 </head>
-<body class="bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 font-sans text-gray-800">
+<body class="bg-[url('bb.webp')] bg-cover bg-center font-sans text-gray-800">
 
   <h2 class="text-3xl md:text-4xl font-extrabold text-center mt-8 mb-6 text-indigo-800 shadow-sm p-2 rounded-lg bg-white bg-opacity-70">
     🎧 Audio Steganography Tool (WAV, PCM 16-bit)
@@ -100,7 +97,8 @@
     It supports PCM 16-bit WAV files.
   </p>
 
-  <div class="section bg-white bg-opacity-90 p-6 md:p-8 rounded-2xl shadow-xl w-11/12 md:w-3/4 lg:w-2/3 max-w-4xl mb-10 border border-indigo-200">
+  <!-- Encoder Section -->
+  <div class="section bg-white bg-opacity-40 p-6 md:p-8 rounded-2xl shadow-xl w-11/12 md:w-3/4 lg:w-2/3 max-w-4xl mb-10 border border-indigo-200">
     <h3 class="text-2xl font-bold mb-4 text-indigo-700 flex items-center">
       ✨ Encoder
     </h3>
@@ -110,18 +108,18 @@
     <p class="text-red-600 text-sm mb-3">
       ⚠️ Don't have a .wav file? Scroll down to convert your .mp3 file to .wav.
     </p>
-    <input type="file" id="inputWav" accept=".wav,audio/wav" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
+    <input type="file" id="inputWav" accept=".wav,audio/wav" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 bg-white bg-opacity-50">
     <div id="capacityInfo" class="info text-sm text-gray-600 mt-2"></div>
 
     <label for="messageText" class="block text-gray-700 text-sm font-semibold mt-4 mb-1">
       Message to embed:
     </label>
-    <textarea id="messageText" placeholder="Enter text message..." class="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 resize-y h-28"></textarea>
+    <textarea id="messageText" placeholder="Enter text message..." class="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 resize-y h-28 bg-white bg-opacity-50"></textarea>
 
     <label for="encPassword" class="block text-gray-700 text-sm font-semibold mt-4 mb-1">
       Password:
     </label>
-    <input type="password" id="encPassword" placeholder="Password for encryption" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
+    <input type="password" id="encPassword" placeholder="Password for encryption" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 bg-white bg-opacity-50">
 
     <button id="encodeBtn" disabled class="w-full py-3 mt-6 rounded-xl font-bold text-white text-lg
       bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700
@@ -141,7 +139,8 @@
     </a>
   </div>
 
-  <div class="section bg-white bg-opacity-90 p-6 md:p-8 rounded-2xl shadow-xl w-11/12 md:w-3/4 lg:w-2/3 max-w-4xl mb-10 border border-indigo-200">
+  <!-- Decoder Section -->
+  <div class="section bg-white bg-opacity-40 p-6 md:p-8 rounded-2xl shadow-xl w-11/12 md:w-3/4 lg:w-2/3 max-w-4xl mb-10 border border-indigo-200">
     <h3 class="text-2xl font-bold mb-4 text-indigo-700 flex items-center">
       🔑 Decoder
     </h3>
@@ -151,11 +150,11 @@
     <p class="text-red-600 text-sm mb-3">
       ⚠️ The file must be encoded using this platform.
     </p>
-    <input type="file" id="stegoWav" accept=".wav,audio/wav" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
+    <input type="file" id="stegoWav" accept=".wav,audio/wav" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 bg-white bg-opacity-50">
     <label for="decPassword" class="block text-gray-700 text-sm font-semibold mt-4 mb-1">
       Password:
     </label>
-    <input type="password" id="decPassword" placeholder="Password for decryption" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
+    <input type="password" id="decPassword" placeholder="Password for decryption" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 bg-white bg-opacity-50">
     <button id="decodeBtn" disabled class="w-full py-3 mt-6 rounded-xl font-bold text-white text-lg
       bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700
       shadow-lg transform transition-all duration-200 ease-in-out hover:scale-105 hover:shadow-xl
@@ -466,7 +465,7 @@
 })();
 </script>
 <!-- Embeddable MP3 to WAV Converter (No External Dependencies) -->
-<div id="mp3-wav-converter-container" class="font-sans bg-white rounded-2xl shadow-xl p-8 max-w-xl w-11/12 md:w-3/4 lg:w-2/3 text-center mx-auto mb-10 border border-indigo-200">
+<div id="mp3-wav-converter-container" class="font-sans bg-white bg-opacity-40 rounded-2xl shadow-xl p-8 max-w-xl w-11/12 md:w-3/4 lg:w-2/3 text-center mx-auto mb-10 border border-indigo-200">
 
     <div class="space-y-6">
         <!-- Header Section -->
@@ -485,7 +484,7 @@
                     Click to select an MP3 file
                 </label>
             </p>
-            <input id="mp3-wav-converter-file-upload" name="file-upload" type="file" accept=".mp3" class="sr-only">
+            <input id="mp3-wav-converter-file-upload" name="file-upload" type="file" accept=".mp3" class="sr-only bg-white bg-opacity-50">
         </div>
 
         <!-- Status & Action Section -->
